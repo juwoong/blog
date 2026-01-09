@@ -1,0 +1,39 @@
+---
+title: "The Technical Debt Metaphor Applies Everywhere"
+pubDate: 2024-10-19 20:40:00+0900
+description: ""
+tags: [idea, develop]
+slug: "technical-debt-metaphor-for-everywhere"
+---
+
+Before discussing this topic, I think I need to clear up a misconception about the "technical debt" metaphor that's widely spread throughout the industry.
+When most people talk about difficulties caused by "technical debt," they think of situations where legacy code is causing many difficulties in current development.
+This is indeed a significant challenge for engineers developing products. However, it's good to understand where this metaphor originally came from and what situation it considers problematic. The content I want to cover in this article also starts from the original metaphor.
+
+The problem situation that technical debt[^1] originally wanted to explain is "not writing code that reflects your understanding of the domain." If you do this, like paying interest when you've taken on debt, all your earnings go to interest, so there's no progress.
+
+However, Ward, who first heard this metaphor, clearly distinguishes between these two situations:
+
+1. Writing incorrect code => Against
+2. Writing code that reflects my understanding even if my understanding of the domain is wrong => For
+
+This can be applied not just to writing code, but to anything. When writing or designing something new. And you can gradually improve it. Conversely, if you start incorporating things other than what you understand, it will become twisted and become something that can no longer be modified. That will make it harder to improve.
+
+Let me give an example from the newsletter article I recently wrote. Originally, this article was going to start with Jensen Huang talking about resilience. However, the original goal of the article was about the stability that writing provides.
+
+As I wrote, I felt that the direction I was originally writing in didn't match the original goal at all. But I also felt it was hard to salvage this writing. Parts I understood ambiguously became tangled together, transforming into a state that was hard to modify without deleting. So I deleted all the writing and started from the parts I understood clearly. Starting from there and gradually rolling it out, the writing was completed in a more definite and modifiable form.
+
+Like this, I felt that starting from what I know and aligning my work with my understanding is important in all production processes.
+A point that can be easily confused here is that I feel it should include not just my understanding of the domain, but also my level of understanding of the features actually needed to implement the necessary functions for that domain.
+
+---
+
+##### Changelog
+
+- 2024-10-19: Written
+- 2024-10-30: Added examples.
+- 2024-11-08: Added points that are easy to misunderstand.
+
+---
+
+[^1] There's a [video](https://www.youtube.com/watch?v=pqeJFYwnkjE) where Ward Cunningham explains it himself, and there's also a [transcript](https://wiki.c2.com/?WardExplainsDebtMetaphor) of this video if you're curious.

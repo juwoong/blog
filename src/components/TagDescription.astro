@@ -1,32 +1,16 @@
 ---
-import { TAG_LABELS } from "../consts";
+import { formatTagDescription, type LanguageCode } from '../i18n';
 
 interface Props {
   tags?: string[];
+  lang?: LanguageCode;
 }
 
-const { tags } = Astro.props;
-
-function getTagLabel(tag: string): string {
-  return TAG_LABELS[tag] || tag;
-}
-
-function formatTagDescription(tags: string[]): string {
-  const labels = tags.map(getTagLabel);
-
-  if (labels.length === 1) {
-    return `${labels[0]}에 관한 글`;
-  } else if (labels.length === 2) {
-    return `${labels[0]} 그리고 ${labels[1]}에 관한 글`;
-  } else {
-    const lastLabel = labels.pop();
-    return `${labels.join(", ")}, 그리고 ${lastLabel}에 관한 글`;
-  }
-}
+const { tags, lang = 'ko' } = Astro.props;
 ---
 
 {tags && tags.length > 0 && (
-  <p class="tag-description">{formatTagDescription(tags)}</p>
+  <p class="tag-description">{formatTagDescription(tags, lang)}</p>
 )}
 
 <style>

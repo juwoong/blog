@@ -4,9 +4,12 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE, TAG_LABELS } from '../consts';
+import { getTranslations, getTagLabel } from '../i18n';
 
-const posts = (await getCollection('blog'))
+const lang = 'ko';
+const t = getTranslations(lang);
+
+const posts = (await getCollection('blog-ko'))
 	.filter((post) => post.data.publish !== false)
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
@@ -15,9 +18,9 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={t.site.title} description={t.site.description} />
 		<style>
 			main {
 				padding-top: 1.5rem;
@@ -162,14 +165,14 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 			<section>
 				<div class="tabs">
 					<div class="tab-list">
-						<button class="tab active" data-tag="all">전체</button>
+						<button class="tab active" data-tag="all">{t.ui.all}</button>
 						{allTags.map((tag) => (
-							<button class="tab" data-tag={tag}>{TAG_LABELS[tag] || tag}</button>
+							<button class="tab" data-tag={tag}>{getTagLabel(tag, lang)}</button>
 						))}
 					</div>
 					<div class="search-container">
-						<input type="text" class="search-input" placeholder="검색..." />
-						<button class="search-btn" aria-label="검색">
+						<input type="text" class="search-input" placeholder={t.ui.searchPlaceholder} />
+						<button class="search-btn" aria-label={t.ui.search}>
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 							</svg>
@@ -183,7 +186,7 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 								<a href={`/articles/${post.id}/`}>
 									<h4 class="title">{post.data.title}</h4>
 									<p class="date">
-										<FormattedDate date={post.data.pubDate} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => TAG_LABELS[tag] || tag).join(', ')}`}
+										<FormattedDate date={post.data.pubDate} lang={lang} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => getTagLabel(tag, lang)).join(', ')}`}
 									</p>
 								</a>
 							</li>

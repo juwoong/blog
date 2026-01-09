@@ -1,11 +1,23 @@
 ---
-import { SITE_TITLE } from '../consts';
-import HeaderLink from './HeaderLink.astro';
+import { getTranslations, getLanguageFromURL, getAlternateLanguagePath, languages, type LanguageCode } from '../i18n';
+
+interface Props {
+	lang?: LanguageCode;
+}
+
+const { lang: explicitLang } = Astro.props;
+const lang = explicitLang ?? getLanguageFromURL(Astro.url.pathname);
+const t = getTranslations(lang);
+const homeUrl = lang === 'en' ? '/en/' : '/';
+const alternate = getAlternateLanguagePath(Astro.url.pathname, lang);
 ---
 
 <header>
 	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
+		<h2><a href={homeUrl}>{t.site.title}</a></h2>
+		<a href={alternate.path} class="lang-switch">
+			{languages[alternate.lang].shortName}
+		</a>
 	</nav>
 </header>
 <style>
@@ -24,6 +36,9 @@ import HeaderLink from './HeaderLink.astro';
 		text-decoration: none;
 	}
 	nav {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		width: 720px;
 		max-width: calc(100% - 2em);
 		margin: 0 auto;
@@ -33,6 +48,18 @@ import HeaderLink from './HeaderLink.astro';
 		padding: 1em 0;
 		color: var(--black);
 		text-decoration: none;
+	}
+	.lang-switch {
+		padding: 0;
+		font-size: 0.85em;
+		color: rgb(var(--gray));
+		text-decoration: none;
+		background: none;
+		border: none;
+		transition: color 0.2s ease;
+	}
+	.lang-switch:hover {
+		color: rgb(var(--black));
 	}
 	@media (max-width: 720px) {
 		nav {

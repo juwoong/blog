@@ -1,18 +1,28 @@
 ---
 import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import TagDescription from '../components/TagDescription.astro';
+import { getTranslations, type LanguageCode } from '../i18n';
 
-type Props = CollectionEntry<'blog'>['data'];
+interface Props {
+	title: string;
+	description: string;
+	pubDate: Date;
+	updatedDate?: Date;
+	heroImage?: ImageMetadata;
+	tags?: string[];
+	location?: string;
+	lang?: LanguageCode;
+}
 
-const { title, description, pubDate, updatedDate, heroImage, tags, location } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, location, lang = 'ko' } = Astro.props;
+const t = getTranslations(lang);
 ---
 
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<BaseHead title={title} description={description} pubDate={pubDate} tags={tags} location={location} />
 		<style>
@@ -65,28 +75,28 @@ const { title, description, pubDate, updatedDate, heroImage, tags, location } = 
 	</head>
 
 	<body>
-		<Header />
+		<Header lang={lang} />
 		<main>
 			<article>
 				<div class="prose">
 					<div class="title">
 						<h1>{title}</h1>
 						<div class="date">
-							<FormattedDate date={pubDate} />
+							<FormattedDate date={pubDate} lang={lang} />
 							{
 								updatedDate && (
 									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+										{t.ui.lastUpdatedOn} <FormattedDate date={updatedDate} lang={lang} />
 									</div>
 								)
 							}
 						</div>
-						<TagDescription tags={tags} />
+						<TagDescription tags={tags} lang={lang} />
 					</div>
 					<slot />
 				</div>
 			</article>
 		</main>
-		<Footer />
+		<Footer lang={lang} />
 	</body>
 </html>

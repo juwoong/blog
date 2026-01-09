@@ -1,16 +1,20 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getTranslations } from '../i18n';
 
 export async function GET(context) {
-	const posts = await getCollection('blog');
+	const t = getTranslations('ko');
+	const posts = await getCollection('blog-ko');
 	return rss({
-		title: SITE_TITLE,
-		description: SITE_DESCRIPTION,
+		title: t.site.title,
+		description: t.site.description,
 		site: context.site,
-		items: posts.map((post) => ({
-			...post.data,
-			link: `/blog/${post.id}/`,
-		})),
+		items: posts
+			.filter((post) => post.data.publish !== false)
+			.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+			.map((post) => ({
+				...post.data,
+				link: `/articles/${post.id}/`,
+			})),
 	});
 }

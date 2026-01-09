@@ -1,0 +1,43 @@
+---
+title: "Developing Like a Pipeline"
+pubDate: 2024-11-04 14:18:00+0900
+category: idea
+description: ""
+tags: [idea, develop]
+slug: "pipeline-like-developing"
+---
+
+When trying to develop software that performs certain functions, traditionally we develop as follows:
+
+![Traditional approach](../../../assets/articles/traditional_programming.webp)
+
+You create a plan to achieve your goal and develop based on that plan. While this is an approach adopted by many companies, when developing something personally or when you need to produce results quickly, the overhead is too large.
+Also, to plan and develop this way, understanding of the entire domain is required. Is it efficient to perfectly understand and plan the entire domain? It won't be.
+
+A good way to address these various practical problems is to develop in a "pipeline" form. Yes, the bash pipeline you might know.
+
+```bash
+$ command1 | command2 | command 3
+```
+
+Bash pipeline takes the output of the first command and feeds it as input to the second command. This continues until we get the result we want.
+What's different from the traditional approach is recognizing what the core goal of my work is and starting development from there.
+
+![Proposed approach](../../../assets/articles/pipeline_like_programming.webp)
+
+In this approach, there are only two things to decide before development:
+
+1. What result will I create?
+2. What work is the core?
+
+Then, develop each task. To develop with speed, it's good not to spend too much time on one action. I set a 30-minute timer and try to develop within that time. This approach has the following advantages:
+
+1. You get working results within the time.
+2. You naturally think about what's most important and develop accordingly.
+
+Of course, implementing this way results in code quality that isn't great, but for me, this also has several advantages. I accept the disadvantages of low code quality like this:
+
+1. Refactoring becomes easier. Code that required a lot of effort at once sometimes creates resistance to refactoring. Lowering code quality helps modify code more organically.
+2. There's more room left for deliberate practice. You can practice by improving code quality a bit more within the same time.
+
+Number 1 is especially very important. Code that naturally gets modified and transformed can reflect my understanding of the domain. Why this is important is explained in the [Technical Debt Metaphor](https://blog.juwoong.me/idea/2024/10/19/technical-debt-metaphor-for-everywhere.html) article.

@@ -1,0 +1,134 @@
+---
+title: "Two Modes of Knowledge Transfer - Auth and Anonymous"
+pubDate: 2024-12-01 23:12:00+0900
+description: ""
+tags: [idea]
+slug: "authorization-anonymous-mode"
+---
+
+Have you ever been in a situation where you had to teach something? As your career grows, situations arise where you need to transfer knowledge you have to someone else. I had my own teaching philosophy built through various experiences, but there were moments when it worked very well and moments when it not only didn't work but I had to endure unpleasant reactions from the other person.
+
+Most instructors (teachers) try to resolve this through conversations with problematic students, but except for occasional successes, they don't achieve significant results. Then they rationalize by saying "It's difficult because the students aren't proactive" and give up. Looking back, even I made such choices.
+
+Conversely, there are also cases where bad reactions come even when actively trying to share knowledge. I've even received absurd responses like "I felt bad because it seemed like you were looking down on me" when I explained something they asked about. What was the problem, and how should we solve these problems?
+
+## Classifying Students
+
+When looking at students' attitudes, there tends to be only one dimension considered: "Are they proactive?" But I feel there's one more big factor that determines learning outcomes: an open mind. Using "proactivity" and "open mind," we can classify students' tendencies as follows:
+
+![Student state classification](../../../assets/articles/student_diagram.webp)
+
+Let me explain only two categories excluding the two obvious ones—Non-responders and Self-learners. You've probably seen people in class who pick fights and nitpick the content as if looking for trouble. Even without verbalizing it, there are people whose attitude is cynical. Those people are close to Attackers.
+
+Then what is Student Syndrome? There are students who don't try to actively understand the transferred knowledge and accept everything the instructor says as the correct answer. Depending on the instructor, these students might also be successful students, but I think these students are the biggest problem. Because they end up in a state where they can't solve real-world problems.
+
+Therefore, the ultimate goal when teaching something is to turn students into "Self-learners." So they become curious on their own, look things up, and can develop.
+
+## Two Modes of Knowledge Transfer
+
+There are countless approaches we can use with students who have these reactions, but most fundamentally, we need to decide what mode to accept students in. I think there are two modes: `Authorization` mode and `Anonymous` mode.
+
+### Anonymous Mode
+
+Have you ever opened an **incognito window** in your browser? It's mainly used when you need to log into personal accounts on public computers, and it's a mode where browsing history is automatically deleted when you close the window. It also means I can't know information about people who used that mode.
+
+![Incognito mode](../../../assets/articles/incognito-mode.webp)
+
+The first mode, `Anonymous` mode, means accepting that I know nothing about the students taking my class and actively considering that point when responding. I don't know how much information the students taking this class have or how quickly they'll digest concepts. So the premise is "I'm giving information to someone who knows nothing."
+
+What's important here is checking "how many of the words or expressions I use are for experts." When you think about specialized knowledge, it's quite common to explain it by leveraging other specialized knowledge.
+
+```python
+class Person:
+    def __init__(self, name: str):
+        self.name = name
+
+    def get_name():
+        return self.name
+
+class Student(Person):
+    def __init__(self):
+        super().__init__()
+```
+
+If asked to explain why this code has an error, experts would answer like this:
+
+> Student is inheriting from the Person class, and Person's constructor takes name as a parameter. But Student isn't passing the name parameter when calling the parent class's, i.e., Person's, constructor, so it errors.
+
+It's correct and not that difficult to say. But even in this statement, an enormous amount of technical terminology has already been used. When highlighting technical terms:
+
+> Student is **inheriting** from the Person class, and Person's **constructor** takes name as a **parameter**. But Student isn't passing the name **parameter** when calling the parent class's **constructor**, so it errors.
+
+Of course, considering the situational context of learning, they would have heard those words at least once. However, when explained that way, it's likely they're not yet at a level where they can understand immediately. Because can you bring up all the words you learned in class into your head? Probably not.
+
+### Authorization Mode
+
+The opposite of `Anonymous` mode is `Authorization` mode. It's a method of sufficiently understanding the individual's situation and guiding learning by approaching in a way suitable for the individual. When approaching this way, you must solve the given problem of "learning" in a way optimized for the individual. This involves understanding the individual's learning motivation, understanding the bottlenecks they have, and then solving them together.
+
+Let's look at conversations like these:
+
+```
+Teacher: Did you try all the practice problems I asked you to do?
+
+Student: Yes. I tried them all.
+
+Teacher: (checking) Oh, right. This is how you do it. How was the difficulty?
+
+Student: I think it was a bit easy.
+
+Teacher: I see. Then let me give you one more problem. This code has problems for use in a real environment as is. What problems do you think there might be?
+
+Student: (thinking carefully) I think it probably doesn't handle when users enter emails incorrectly.
+
+Teacher: Right. Then how should we fix this code to solve that problem? Would you try fixing it?
+```
+
+```
+Teacher: Did you try all the practice problems I asked you to do?
+
+Student: No.
+
+Teacher: Oh, is there some difficulty?
+
+Student: (..)
+
+Teacher: So you don't even know what to do or where to start.
+
+Student: Yes. I'm not quite getting a feel for it.
+
+Teacher: How far did you get? Could you show me?
+```
+
+This kind of approach is Authorization mode. Just as activity records remain when you log in and do things, it becomes a method of tailoring communication with students based on those activity records. In this process, linguistic and non-linguistic exploration activities to extract the current state from the student are very important. Because even if the student is in a passive state not talking about themselves, you must respond accordingly.
+
+## Response Methods by Student Style
+
+### In the case of "Self-learners"
+
+The reason teachers like "Self-learners" is clear. They continue to explore on their own and show results. If they show that, most teachers will feel very proud and want to give them more.
+
+However, the caution here is that self-learners are likely students with their own clear learning methods or goals. Considering that point, I think it's good to clarify the students' intentions on the spot and assist in the direction the students want to go as much as possible. If I had to categorize, it's an `Anonymous` approach. Since students develop a lot on their own, it's good to comprehensively consider their development status and give next advice accordingly.
+
+### In the case of "Student Syndrome"
+
+Personally, Student Syndrome is the easiest category to move in a positive direction. Because at least they have the will to learn. However, you need to get them to think for themselves, and rather than just questions, delivering the intention behind the questions was most effective. If the feeling of "This is also good for you, so even if it's a bit difficult and awkward, please try" is conveyed, they will gladly think and bring the results of their thinking. Even if that result is truly giving up.
+
+What you need to do is recognize their concerns and ask follow-up questions about those concerns in the next situation. Even if you keep making them think for themselves, depending on the sincerity they feel toward you, they will divide into "Attackers" and "Self-learners." "That person is just annoying me" and "If someone who cares about me this much says I should definitely try it, it must be good for me" are clearly different. This is close to `Authorization`.
+
+### In the case of "Non-responders"
+
+One of the easy misunderstandings people make is that "If there's no response, it's hard to continue the conversation." Think the opposite. If there's no answer, just confirm by saying "Ah, so is it like this?" Nine out of ten times you'll get a response.
+
+It's rarer than you think for someone to refuse to talk just because they don't want to when someone is asking in front of them. Most often, they stumble because they don't know how to say it or what they think, and can't answer. For such people, just ask directly. Whether what you think is what they mean. If you get it right at once, you're lucky, and if not, just keep asking questions to elicit answers. They will take you to the bottleneck they're experiencing.
+
+The most important thing in this process is to continuously tell yourself "I don't know anything about that student." Let's make good use of `Anonymous` mode. The moment you think "I know well," you're more likely to choose talking over listening, and in that moment, the student is likely to return to being a "Non-responder."
+
+### In the case of "Attackers"
+
+Among the four styles mentioned above, Attackers are the hardest to deal with. Because those people are actively refusing. Magician Jun-pyo Kim mentioned on YouTube that the most difficult audience style during performances is people who don't want to watch the show. Because those people aren't focused on the performance and are watching with a critical attitude. It's the same in class situations.
+
+According to Motivational Interviewing technique, to change someone, you have to instill motivation in themselves. Paradoxically, therefore, there's no way I can directly make them move. However, keep asking questions kindly. The most important thing here is that you shouldn't appear "mechanical." It's hard to spit in a smiling face, and if you keep going like that, you'll find them moving slightly more favorably. That's right. You've at least moved them to "Non-responder" or "Student Syndrome."
+
+## Conclusion
+
+Let's understand that depending on what approach I use, I can very effectively cause change in people. The more you do, the more positive influence you can have on more people. Sam Altman said don't be afraid to evaluate what kind of person someone is. Let's actively identify, actively adjust, and think about what methods can have a positive influence on them.

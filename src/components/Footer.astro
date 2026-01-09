@@ -1,9 +1,19 @@
 ---
+import { getTranslations, getLanguageFromURL, type LanguageCode } from '../i18n';
+
+interface Props {
+	lang?: LanguageCode;
+}
+
+const { lang: explicitLang } = Astro.props;
+const lang = explicitLang ?? getLanguageFromURL(Astro.url.pathname);
+const t = getTranslations(lang);
 const today = new Date();
+const copyrightText = t.footer.copyright.replace('{year}', today.getFullYear().toString());
 ---
 
 <footer>
-	&copy; {today.getFullYear()} Juwoong Bae. All rights reserved.
+	{copyrightText}
 </footer>
 <style>
 	footer {

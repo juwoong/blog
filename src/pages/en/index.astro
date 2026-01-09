@@ -1,0 +1,274 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { getTranslations, getTagLabel } from '../../i18n';
+
+const lang = 'en';
+const t = getTranslations(lang);
+
+const posts = (await getCollection('blog-en'))
+	.filter((post) => post.data.publish !== false)
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Collect all tags from posts
+const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={t.site.title} description={t.site.description} />
+		<style>
+			main {
+				padding-top: 1.5rem;
+				width: 720px;
+			}
+			ul {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			ul li {
+				padding: 1rem 0;
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+			ul li:last-child {
+				border-bottom: none;
+			}
+			ul li a {
+				display: block;
+				text-decoration: none;
+				transition: transform 0.2s ease;
+			}
+			ul li a:hover {
+				transform: translateX(8px);
+			}
+			.title {
+				margin: 0 0 0.25rem 0;
+				color: rgb(var(--gray-dark));
+				font-size: 1.1em;
+				line-height: 1.4;
+				font-weight: 400;
+			}
+			ul li a:hover .title {
+				color: rgb(var(--black));
+			}
+			.date {
+				margin: 0;
+				color: rgb(var(--gray-date));
+				font-size: 0.9em;
+			}
+			.tabs {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 2rem;
+				gap: 1rem;
+			}
+			.tab-list {
+				display: flex;
+				gap: 1.5rem;
+			}
+			.tab {
+				padding: 0;
+				padding-bottom: 6px;
+				border: none;
+				border-bottom: 1px solid transparent;
+				background: none;
+				color: rgb(var(--gray-muted));
+				font-size: 0.9em;
+				cursor: pointer;
+				transition: color 0.2s ease, border-color 0.2s ease;
+				white-space: nowrap;
+				flex-shrink: 0;
+			}
+			.tab:hover {
+				color: rgba(179, 58, 58, 0.7);
+			}
+			.tab.active {
+				color: #b33a3a;
+				font-weight: 500;
+				border-bottom-color: #b33a3a;
+			}
+			.search-container {
+				position: relative;
+				display: flex;
+				align-items: center;
+			}
+			.search-input {
+				position: absolute;
+				right: 24px;
+				width: 0;
+				padding: 0;
+				border: none;
+				border-bottom: 1px solid transparent;
+				background: #fafaf8;
+				font-size: 0.9em;
+				color: rgb(var(--black));
+				outline: none;
+				opacity: 0;
+				transition: width 0.3s ease, opacity 0.3s ease, border-color 0.3s ease;
+			}
+			.search-input.active {
+				width: 150px;
+				padding: 0.25rem 0;
+				border-bottom-color: rgb(var(--gray-light));
+				opacity: 1;
+			}
+			.search-input::placeholder {
+				color: rgb(var(--gray));
+			}
+			.search-btn {
+				padding: 0;
+				border: none;
+				background: none;
+				color: rgb(var(--gray));
+				cursor: pointer;
+				transition: color 0.2s ease;
+			}
+			.search-btn:hover {
+				color: rgb(var(--black));
+			}
+			.search-btn svg {
+				width: 18px;
+				height: 18px;
+			}
+			.post-item {
+				display: block;
+			}
+			.post-item.hidden {
+				display: none;
+			}
+			.empty-message {
+				text-align: center;
+				color: rgb(var(--gray));
+				padding: 3rem 0;
+			}
+			@media (max-width: 720px) {
+				.tab-list {
+					gap: 1rem;
+					overflow-x: auto;
+					-webkit-overflow-scrolling: touch;
+					scrollbar-width: none;
+					-ms-overflow-style: none;
+				}
+				.tab-list::-webkit-scrollbar {
+					display: none;
+				}
+				.search-container {
+					display: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header lang={lang} />
+		<main>
+			<section>
+				{posts.length > 0 ? (
+					<>
+						<div class="tabs">
+							<div class="tab-list">
+								<button class="tab active" data-tag="all">{t.ui.all}</button>
+								{allTags.map((tag) => (
+									<button class="tab" data-tag={tag}>{getTagLabel(tag, lang)}</button>
+								))}
+							</div>
+							<div class="search-container">
+								<input type="text" class="search-input" placeholder={t.ui.searchPlaceholder} />
+								<button class="search-btn" aria-label={t.ui.search}>
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+									</svg>
+								</button>
+							</div>
+						</div>
+						<ul>
+							{
+								posts.map((post) => (
+									<li class="post-item" data-tags={JSON.stringify(post.data.tags || [])}>
+										<a href={`/en/articles/${post.id}/`}>
+											<h4 class="title">{post.data.title}</h4>
+											<p class="date">
+												<FormattedDate date={post.data.pubDate} lang={lang} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => getTagLabel(tag, lang)).join(', ')}`}
+											</p>
+										</a>
+									</li>
+								))
+							}
+						</ul>
+					</>
+				) : (
+					<p class="empty-message">No posts available yet. Check back soon!</p>
+				)}
+			</section>
+		</main>
+		<script>
+			const tabs = document.querySelectorAll('.tab');
+			const posts = document.querySelectorAll('.post-item');
+			const searchBtn = document.querySelector('.search-btn');
+			const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+
+			// Tag filter
+			tabs.forEach(tab => {
+				tab.addEventListener('click', () => {
+					tabs.forEach(t => t.classList.remove('active'));
+					tab.classList.add('active');
+
+					const selectedTag = tab.getAttribute('data-tag');
+
+					posts.forEach(post => {
+						const postTags = JSON.parse(post.getAttribute('data-tags') || '[]');
+						if (selectedTag === 'all' || postTags.includes(selectedTag)) {
+							post.classList.remove('hidden');
+						} else {
+							post.classList.add('hidden');
+						}
+					});
+				});
+			});
+
+			// Search toggle
+			searchBtn?.addEventListener('click', () => {
+				searchInput.classList.toggle('active');
+				if (searchInput.classList.contains('active')) {
+					searchInput.focus();
+				} else {
+					searchInput.value = '';
+					filterPosts('');
+				}
+			});
+
+			// Search input
+			searchInput?.addEventListener('input', (e) => {
+				const query = (e.target as HTMLInputElement).value.toLowerCase();
+				filterPosts(query);
+			});
+
+			// Close search on outside click
+			document.addEventListener('click', (e) => {
+				const target = e.target as HTMLElement;
+				if (!target.closest('.search-container') && searchInput?.classList.contains('active')) {
+					searchInput.classList.remove('active');
+					searchInput.value = '';
+					filterPosts('');
+				}
+			});
+
+			function filterPosts(query: string) {
+				posts.forEach(post => {
+					const title = post.querySelector('.title')?.textContent?.toLowerCase() || '';
+					if (query === '' || title.includes(query)) {
+						post.classList.remove('hidden');
+					} else {
+						post.classList.add('hidden');
+					}
+				});
+			}
+		</script>
+		<Footer lang={lang} />
+	</body>
+</html>

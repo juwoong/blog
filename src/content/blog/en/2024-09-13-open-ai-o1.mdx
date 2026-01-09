@@ -1,0 +1,40 @@
+---
+title: "Insights from OpenAI o1-preview"
+pubDate: 2024-09-02 11:03:00+0900
+description: ""
+tags: [idea, gpt]
+slug: "open-ai-o1"
+---
+
+I briefly tried it, and the concepts of cognitive prompting and CTA (Cognitive Task Analysis) immediately came to mind. It was interesting, so I'm recording it here.
+
+When asked the following question, the o1 model goes through the following thinking process:
+
+```
+Question: I don't understand the concept of imputed rent in GDP. If I purchased a house for 2 billion won in 2023, how much would that be counted in GDP?
+```
+
+```
+Thinking about GDP calculation
+
+The amount paid to purchase a house is not included in GDP, instead, unexpected repair costs appearing as government consumption expenditure are included.
+
+CHUNK: Helping understanding
+
+I understand imputed rent in GDP. Actual transactions are not reflected in GDP, but related services like brokerage fees are included. Through this, I'm grasping economic flow.
+
+The rental value of a house occupied by its owner is not included in GDP, but the annual value generated is reflected in GDP.
+Explaining rental income
+
+I'm trying to explain the concept of estimated rental income in GDP more clearly. House purchase is not directly included in GDP, but the estimated annual rental value of the house is included.
+
+Identifying economic factors reflected in GDP
+
+The process of buying a house does not directly impact GDP, but transaction costs and service fees are included in GDP to reflect the economy.
+
+Imputed rent has a significant impact on economic activity.
+```
+
+The cognitive prompting I mentioned above is prompting that guides GPT to give better answers by referencing human cognitive processes. What was interesting was that o1's answer quality is better when it goes through this kind of cognitive thinking process.
+
+In the end, surprisingly, it seems that understanding humans makes the difference.
