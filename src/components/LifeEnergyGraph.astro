@@ -1,0 +1,250 @@
+---
+interface Props {
+  height?: string;
+}
+const { height = "300px" } = Astro.props;
+---
+
+<div class="life-energy-container" style={`height: ${height}`}>
+  <canvas class="life-energy-canvas"></canvas>
+</div>
+
+<style>
+  .life-energy-container {
+    width: 100%;
+    background-color: #fdfbf7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .life-energy-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  class LifeEnergyAnimation {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private container: HTMLElement;
+    private progress = 0;
+    private duration = 10000;
+    private pauseTime = 2000;
+    private lastTime = 0;
+    private isPaused = false;
+    private pauseStartTime = 0;
+
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d')!;
+      this.container = canvas.parentElement!;
+      this.init();
+    }
+
+    private init() {
+      this.resizeCanvas();
+      window.addEventListener('resize', () => this.resizeCanvas());
+      this.loop(0);
+    }
+
+    private resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = this.container.getBoundingClientRect();
+      this.canvas.width = rect.width * dpr;
+      this.canvas.height = rect.height * dpr;
+      this.canvas.style.width = `${rect.width}px`;
+      this.canvas.style.height = `${rect.height}px`;
+      this.ctx.scale(dpr, dpr);
+      this.draw();
+    }
+
+    private getGaussian(x: number): number {
+      const mean = 0.5;
+      const sigma = 0.16;
+      return Math.exp(-0.5 * Math.pow((x - mean) / sigma, 2));
+    }
+
+    private draw() {
+      const rect = this.container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      this.ctx.clearRect(0, 0, width, height);
+
+      const marginBottom = height * 0.2;
+      const marginLeft = Math.min(width * 0.12, 50);
+      const marginRight = Math.min(width * 0.08, 30);
+      const marginTop = height * 0.15;
+
+      const graphWidth = width - marginLeft - marginRight;
+      const graphHeight = height - marginBottom - marginTop;
+
+      const originX = marginLeft;
+      const originY = height - marginBottom;
+
+      // X축
+      this.ctx.beginPath();
+      this.ctx.moveTo(originX, originY);
+      this.ctx.lineTo(originX + graphWidth, originY);
+      this.ctx.strokeStyle = '#cbd5e1';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.stroke();
+
+      // Y축
+      this.ctx.beginPath();
+      this.ctx.moveTo(originX, originY);
+      this.ctx.lineTo(originX, originY - graphHeight - 20);
+      this.ctx.strokeStyle = '#64748b';
+      this.ctx.stroke();
+
+      // Y축 화살표
+      this.ctx.beginPath();
+      this.ctx.moveTo(originX, originY - graphHeight - 20);
+      this.ctx.lineTo(originX - 4, originY - graphHeight - 12);
+      this.ctx.lineTo(originX + 4, originY - graphHeight - 12);
+      this.ctx.closePath();
+      this.ctx.fillStyle = '#64748b';
+      this.ctx.fill();
+
+      // 라벨
+      this.ctx.fillStyle = '#64748b';
+      this.ctx.font = 'italic 14px "Times New Roman", serif';
+
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'top';
+      this.ctx.fillText('Birth', originX, originY + 10);
+      this.ctx.fillText('End', originX + graphWidth, originY + 10);
+
+      this.ctx.save();
+      this.ctx.translate(originX - 20, originY - graphHeight / 2);
+      this.ctx.rotate(-Math.PI / 2);
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'bottom';
+      this.ctx.fillText('Energy', 0, 0);
+      this.ctx.restore();
+
+      // 곡선 그리기
+      const currentX = originX + this.progress * graphWidth;
+      const currentYVal = this.getGaussian(this.progress);
+      const currentY = originY - currentYVal * graphHeight;
+
+      this.ctx.beginPath();
+      const startY = originY - this.getGaussian(0) * graphHeight;
+      this.ctx.moveTo(originX, startY);
+
+      const steps = Math.ceil(this.progress * 100);
+      for (let i = 1; i <= steps; i++) {
+        const ratio = i / 100;
+        const drawRatio = Math.min(ratio, this.progress);
+        const px = originX + drawRatio * graphWidth;
+        const py = originY - this.getGaussian(drawRatio) * graphHeight;
+        this.ctx.lineTo(px, py);
+      }
+      this.ctx.lineTo(currentX, currentY);
+
+      this.ctx.strokeStyle = '#475569';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.lineCap = 'round';
+      this.ctx.lineJoin = 'round';
+      this.ctx.stroke();
+
+      // 영역 채우기
+      this.ctx.lineTo(currentX, originY);
+      this.ctx.lineTo(originX, originY);
+      this.ctx.lineTo(originX, startY);
+
+      const gradient = this.ctx.createLinearGradient(0, originY - graphHeight, 0, originY);
+      gradient.addColorStop(0, 'rgba(100, 116, 139, 0.3)');
+      gradient.addColorStop(1, 'rgba(203, 213, 225, 0.05)');
+      this.ctx.fillStyle = gradient;
+      this.ctx.fill();
+
+      // 메모 박스
+      const age = Math.floor(this.progress * 100);
+      const text = `Age: ${age}`;
+
+      this.ctx.font = '16px "Times New Roman", serif';
+      const textMetrics = this.ctx.measureText(text);
+      const textWidth = textMetrics.width;
+
+      const boxPaddingX = 12;
+      const boxWidth = textWidth + boxPaddingX * 2;
+      const boxHeight = 36;
+      const boxY = Math.max(currentY - 50, boxHeight / 2 + 4);
+
+      // 박스 X 위치 계산 (화면 밖으로 나가지 않도록 클램핑)
+      const boxLeftMin = boxWidth / 2 + 4;
+      const boxRightMax = width - boxWidth / 2 - 4;
+      const clampedBoxX = Math.max(boxLeftMin, Math.min(currentX, boxRightMax));
+
+      this.ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+      this.ctx.shadowBlur = 10;
+      this.ctx.shadowOffsetY = 4;
+
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.beginPath();
+      this.ctx.roundRect(clampedBoxX - boxWidth / 2, boxY, boxWidth, boxHeight, 4);
+      this.ctx.fill();
+
+      this.ctx.shadowColor = 'transparent';
+      this.ctx.strokeStyle = '#e2e8f0';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      // 연결선
+      this.ctx.beginPath();
+      this.ctx.moveTo(clampedBoxX, boxY + boxHeight);
+      this.ctx.lineTo(currentX, currentY);
+      this.ctx.strokeStyle = '#94a3b8';
+      this.ctx.lineWidth = 0.5;
+      this.ctx.setLineDash([2, 2]);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      // 현재 위치 점
+      this.ctx.beginPath();
+      this.ctx.arc(currentX, currentY, 4, 0, Math.PI * 2);
+      this.ctx.fillStyle = '#1e293b';
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#ffffff';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.stroke();
+
+      // 텍스트
+      this.ctx.fillStyle = '#1e293b';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.font = '16px "Times New Roman", serif';
+      this.ctx.fillText(text, clampedBoxX, boxY + boxHeight / 2 + 1);
+    }
+
+    private loop = (timestamp: number) => {
+      if (!this.lastTime) this.lastTime = timestamp;
+      const dt = timestamp - this.lastTime;
+      this.lastTime = timestamp;
+
+      if (this.isPaused) {
+        if (timestamp - this.pauseStartTime > this.pauseTime) {
+          this.isPaused = false;
+          this.progress = 0;
+        }
+      } else {
+        this.progress += dt / this.duration;
+        if (this.progress >= 1) {
+          this.progress = 1;
+          this.isPaused = true;
+          this.pauseStartTime = timestamp;
+        }
+      }
+
+      this.draw();
+      requestAnimationFrame(this.loop);
+    };
+  }
+
+  document.querySelectorAll('.life-energy-canvas').forEach((canvas) => {
+    new LifeEnergyAnimation(canvas as HTMLCanvasElement);
+  });
+</script>

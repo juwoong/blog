@@ -154,6 +154,10 @@ hr {
   main {
     padding: 1em;
   }
+  figure {
+    margin-left: -1em;
+    margin-right: -1em;
+  }
 }
 
 .sr-only {

@@ -1,0 +1,179 @@
+---
+interface Props {
+  height?: string;
+}
+const { height = "200px" } = Astro.props;
+---
+
+<div class="life-timeline-container" style={`height: ${height}`}>
+  <canvas class="life-timeline-canvas"></canvas>
+</div>
+
+<style>
+  .life-timeline-container {
+    width: 100%;
+    background-color: #fdfbf7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .life-timeline-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  class LifeTimelineAnimation {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private container: HTMLElement;
+    private progress = 0;
+    private duration = 10000;
+    private pauseTime = 2000;
+    private lastTime = 0;
+    private isPaused = false;
+    private pauseStartTime = 0;
+    private animationId: number | null = null;
+
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d')!;
+      this.container = canvas.parentElement!;
+      this.init();
+    }
+
+    private init() {
+      this.resizeCanvas();
+      window.addEventListener('resize', () => this.resizeCanvas());
+      this.loop(0);
+    }
+
+    private resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = this.container.getBoundingClientRect();
+      this.canvas.width = rect.width * dpr;
+      this.canvas.height = rect.height * dpr;
+      this.canvas.style.width = `${rect.width}px`;
+      this.canvas.style.height = `${rect.height}px`;
+      this.ctx.scale(dpr, dpr);
+      this.draw();
+    }
+
+    private draw() {
+      const rect = this.container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      this.ctx.clearRect(0, 0, width, height);
+
+      const margin = Math.min(width * 0.1, 60);
+      const paddingX = margin;
+      const lineY = height / 2;
+      const lineWidth = width - paddingX * 2;
+
+      // 메인 축
+      this.ctx.beginPath();
+      this.ctx.moveTo(paddingX, lineY);
+      this.ctx.lineTo(paddingX + lineWidth, lineY);
+      this.ctx.strokeStyle = '#d1d5db';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.stroke();
+
+      // Birth / End 텍스트
+      this.ctx.fillStyle = '#64748b';
+      this.ctx.font = 'italic 14px "Times New Roman", serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'top';
+      this.ctx.fillText('Birth', paddingX, lineY + 15);
+      this.ctx.fillText('End', paddingX + lineWidth, lineY + 15);
+
+      // 현재 위치
+      const currentX = paddingX + this.progress * lineWidth;
+      const age = Math.floor(this.progress * 100);
+      const text = `Age: ${age}`;
+
+      this.ctx.font = '16px "Times New Roman", serif';
+      const textMetrics = this.ctx.measureText(text);
+      const textWidth = textMetrics.width;
+
+      const boxPaddingX = 12;
+      const boxWidth = textWidth + boxPaddingX * 2;
+      const boxHeight = 36;
+      const boxY = lineY - 50;
+
+      // 박스 X 위치 계산 (화면 밖으로 나가지 않도록 클램핑)
+      const boxLeftMin = boxWidth / 2 + 4;
+      const boxRightMax = width - boxWidth / 2 - 4;
+      const clampedBoxX = Math.max(boxLeftMin, Math.min(currentX, boxRightMax));
+
+      // 그림자
+      this.ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+      this.ctx.shadowBlur = 15;
+      this.ctx.shadowOffsetY = 5;
+
+      // 박스 배경
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.beginPath();
+      this.ctx.roundRect(clampedBoxX - boxWidth / 2, boxY, boxWidth, boxHeight, 4);
+      this.ctx.fill();
+
+      // 테두리
+      this.ctx.shadowColor = 'transparent';
+      this.ctx.strokeStyle = '#e2e8f0';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      // 연결선
+      this.ctx.beginPath();
+      this.ctx.moveTo(clampedBoxX, boxY + boxHeight);
+      this.ctx.lineTo(currentX, lineY);
+      this.ctx.strokeStyle = '#94a3b8';
+      this.ctx.lineWidth = 0.5;
+      this.ctx.setLineDash([2, 2]);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      // 현재 위치 점
+      this.ctx.beginPath();
+      this.ctx.arc(currentX, lineY, 3, 0, Math.PI * 2);
+      this.ctx.fillStyle = '#475569';
+      this.ctx.fill();
+
+      // 텍스트
+      this.ctx.fillStyle = '#1e293b';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(text, clampedBoxX, boxY + boxHeight / 2 + 1);
+    }
+
+    private loop = (timestamp: number) => {
+      if (!this.lastTime) this.lastTime = timestamp;
+      const dt = timestamp - this.lastTime;
+      this.lastTime = timestamp;
+
+      if (this.isPaused) {
+        if (timestamp - this.pauseStartTime > this.pauseTime) {
+          this.isPaused = false;
+          this.progress = 0;
+        }
+      } else {
+        this.progress += dt / this.duration;
+        if (this.progress >= 1) {
+          this.progress = 1;
+          this.isPaused = true;
+          this.pauseStartTime = timestamp;
+        }
+      }
+
+      this.draw();
+      this.animationId = requestAnimationFrame(this.loop);
+    };
+  }
+
+  // 모든 캔버스 초기화
+  document.querySelectorAll('.life-timeline-canvas').forEach((canvas) => {
+    new LifeTimelineAnimation(canvas as HTMLCanvasElement);
+  });
+</script>
