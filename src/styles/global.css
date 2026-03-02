@@ -158,6 +158,10 @@ hr {
     margin-left: -1em;
     margin-right: -1em;
   }
+  ol,
+  ul {
+    padding-left: 24px;
+  }
 }
 
 .sr-only {
