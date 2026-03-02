@@ -1,0 +1,172 @@
+---
+title: "February 2026 Retrospective"
+pubDate: 2026-03-02 23:09:00+0900
+description: ""
+tags: [personal]
+slug: "2026-feb-retrospective"
+---
+
+import Figure from "../../../components/Figure.astro";
+import ImageRow from "../../../components/ImageRow.astro";
+import MosaicReveal from "../../../components/MosaicReveal.astro";
+import OutputAnimation from "../../../components/OutputAnimation.astro";
+import Intro from "../../../assets/articles/2026-feb-retrospective/img-01-intro.webp";
+import Hotchoco from "../../../assets/articles/2026-feb-retrospective/img-02-hotchoco.webp";
+import Cooking1 from "../../../assets/articles/2026-feb-retrospective/img-03-cooking-1.webp";
+import Cooking2 from "../../../assets/articles/2026-feb-retrospective/img-04-cooking-2.webp";
+import Cooking3 from "../../../assets/articles/2026-feb-retrospective/img-05-water-kimchi.webp";
+import Cooking4 from "../../../assets/articles/2026-feb-retrospective/img-06-answer-ansungjae.webp";
+import Chatlog1 from "../../../assets/articles/2026-feb-retrospective/img-07-chatlog-1.webp";
+import Chatlog2 from "../../../assets/articles/2026-feb-retrospective/img-08-chatlog-2.webp";
+import Usage from "../../../assets/articles/2026-feb-retrospective/img-09-usage-chart-1.webp";
+import Output1 from "../../../assets/articles/2026-feb-retrospective/img-10-output-1.webp";
+import Output2 from "../../../assets/articles/2026-feb-retrospective/img-11-output-2.webp";
+import Output3 from "../../../assets/articles/2026-feb-retrospective/img-12-output-3.webp";
+import WhatIsProblem from "../../../assets/articles/2026-feb-retrospective/img-13-bus-insight.webp";
+import Carousel from "../../../components/Carousel.astro";
+
+February has passed. I should have wrapped this up yesterday, but I spent the entire day out handling things, and before I knew it, February was already over. At first I thought I hadn't done much, but as I started writing, I realized it was a month full of reflection and experience. I need to put in the effort now to make sure each of the remaining ten months yields at least this much.
+
+A quick update on how I've been: my left ankle gave out. I stumbled and fell, but it didn't swell up after sleeping so I thought I was fine. The moment I let my guard down, my ankle decided to throw a "double the size" event. <MosaicReveal mode="blur">Blood and pus had pooled in the cartilage, so they drained it,</MosaicReveal> and part of my ligament was torn, so I'm now wearing an ankle brace. Thinking of it as a new experience makes it rather enjoyable — except for the part where going anywhere is a hassle.
+
+<Figure src={Intro} caption="Just funny" />
+
+## What Should I Do?
+
+Early February was dominated by an overwhelming sense of being lost. I had a few ideas, but I had no clue how to execute them. Naturally, I ended up just overthinking and my execution speed dropped drastically. Feeling like things couldn't go on this way, I started talking with friends A and B — who were wrestling with similar dilemmas — about our respective situations, and we naturally ended up meeting for a deep conversation.
+
+<Figure
+  src={Hotchoco}
+  caption="Friend B ordered a hot chocolate, and it came in a ridiculously pink cup, so I took a photo. He got a blood sugar spike from it and passed out."
+/>
+
+The conversation concluded with us telling each other, "Your eyes don't light up when you talk about what you're currently doing, but they do when you talk about what you were originally working on." What each of us thought we wanted to do was really just something that seemed reasonable given the circumstances. The things we'd naturally get excited about, or raise questions about mid-conversation, were always extensions of what we'd originally been interested in.
+
+## How Should I Do It?
+
+To sharpen the vague direction, I decided to keep running feedback cycles. The initial reason was that I wouldn't gain insights without using things extensively myself, but as I ran one feedback cycle per day, I started finding shortcomings not only in my product but also in my own workflow and learning process.
+
+<OutputAnimation />
+
+In this situation, there are two main strategies for learning and growing explosively fast: increasing the volume of input and increasing the efficiency of input. Since it happened to be break and I was back at my parents' house with some extra room to breathe, I decided to improve both simultaneously.
+
+### Increasing Input Efficiency → Sharpen Your Senses, Learn Your Senses
+
+While running rapid feedback cycles recently, I realized I'd forgotten how to use many of my senses. More precisely, I felt unfamiliar with how to utilize the many signals coming at me. It felt like all those muscles had atrophied. As a result, I noticed my ability to derive cause-and-effect from my actions had weakened, and my thoughts no longer chained together as deeply as they used to.
+
+When this happens, it becomes hard to build mental cause-and-effect maps of what reactions my current actions will lead to. The problem is that this kind of sensibility is crucial for learning how to better leverage LLMs. So I thought about how I could rapidly accumulate experiences that use diverse senses to infer causality and get immediate feedback. Given that it's something I need to do daily and provides instant feedback, I started cooking regularly.
+
+<ImageRow>
+  <Figure src={Cooking1} caption="Homemade guacamole" />
+  <Figure
+    src={Cooking2}
+    caption="Curry with caramelized onions and mashed potatoes for thickness"
+  />
+</ImageRow>
+
+This experience turned out to be better than expected — every time I cook, I can feel my mind becoming more supple. It started as my own hypothesis, but I think it's a surprisingly effective method of deliberate practice. To complete a dish with minimal reference to the recipe, you need to mobilize your senses and thinking to understand the properties of ingredients and simulate what actions will lead to the desired outcome. From simply adjusting the heat, to how big to cut the ingredients, to how much salt to add at a given salinity level. Going through this process repeatedly, I can feel a kind of mental model forming — and I came to understand, if only slightly, that this is the sensation of expertise.
+
+<Figure src={Cooking3} caption="Water kimchi I made myself. It was incredibly delicious." />
+
+I also got to experience borrowing someone else's expertise. I really love my maternal grandmother's water kimchi, so before the Lunar New Year holiday, I arranged to make it together with her. She was skeptical of me at first and held me back a bit, but after seeing that I could handle a knife decently, she entrusted a lot more to me and I was able to learn much more. Since elderly people often can't articulate how to cook well, I had to keep asking in the moment — what they're thinking, how they're approaching each step.
+
+<Figure
+  src={Cooking4}
+  caption="Ahn Sung-jae's YouTube (https://www.youtube.com/watch?v=mgzs2XkodR0)"
+/>
+
+The answers that came back were things like "This is napa cabbage, so cut it to a nice one-bite size," "Carrots are hard, so they can be a bit thinner," "Radish gets mushy if it's too thin, so cut it a bit thicker." The way she looked at ingredients, understood them, and thought about how the result would turn out — and how she considered how it would feel when eaten and how it would look — overlapped quite a bit with a scene from Ahn Sung-jae's YouTube.
+
+### Increasing Input Volume → Use a Lot More Tokens
+
+Running `npx ccusage` shows my Claude Code token usage. I thought I'd been using it pretty intensively through January, but the reality was about 200 million tokens per month — roughly `$180` in cost. Looking at how various people use it, there was clearly room for improvement in my usage patterns, so I checked my usage daily and tried to delegate as much of my work as possible.
+
+At first, I started by entrusting broader scopes of work per single execution. But things were going well until at some point the working context would sharply drop off. It kept returning "done" feedback while missing important parts of what I'd delegated, so I looked for better approaches and had it track work in a separate file while pulling in necessary information on the fly.
+
+<ImageRow>
+  <Figure src={Chatlog1} caption="" />
+  <Figure src={Chatlog2} caption="" />
+</ImageRow>
+
+Since this process happens through language, it's quite hard to gauge feedback through numbers. In fact, when I discuss this with others, they don't talk in terms of performance and metrics — they talk in terms of feel. "This one seems better," "That one seems lacking," and so on. In this process, I was able to faithfully apply the senses I'd developed through cooking.
+
+As a result, this is roughly the approach that solidified:
+
+**Previous approach**
+
+1. Use subagents heavily
+2. Give a direction and guide into plan mode
+3. Review and check work
+4. Execute and verify
+
+**New approach**
+
+1. For long tasks, use Claude Cowork to write very detailed plans for each phase
+2. Use subagents heavily, but guide them to read only the minimum necessary files (they infer surprisingly well through folder structure, etc.)
+3. Separate any commands or tasks repeated more than twice into skills (it writes them well when asked)
+4. Continuously record context in `PLAN.md` etc. as requested in `CLAUDE.md`
+5. Request continuous checks for omissions at the end of each execution
+6. Break work cycles into small pieces and request self-cycling
+7. Clearly document the end state of each task and how to verify it against the codebase, then lock it so it can't end without passing verification
+
+Of course, every task is slightly different, so the workflow keeps evolving.
+
+Among the various skills I've recently adopted, the best ones have been agent-browser and Andrej Karpathy. When doing frontend or application work, the ability to include GUI work cycles in the loop significantly increases volume. A well-made skill is Codex. Codex 5.3 Spark is so fast that I only use Claude Opus for overall orchestration and delegate detailed execution to Codex. This tends to reduce overall task time.
+
+Over this past month, through this improvement process, I was able to use roughly 7.5 times more compared to January. That averages out to about 50 million tokens per day, which I'm quite satisfied with. The goal for March is to improve further so that I use at least 100 million tokens per day.
+
+<Figure
+  src={Usage}
+  caption="Top is January, bottom is February usage. Roughly 7.5x more usage."
+/>
+
+### Turning Output Back into Input
+
+Working this way produces a lot of output. But this output is ultimately a product, so it needs to smoothly solve the problems I need solved. Ironically, since it takes less effort to start and finish work, I feel like my minimum quality bar is eroding. Users may not know why something is uncomfortable, but they can feel the discomfort.
+
+<Carousel caption='Source: Jon or Park (<a href="https://youtu.be/lwUFqA4bmNk?si=COxYTFaY9JxInRkV&t=940">link</a>)'>
+  <Figure src={Output1} />
+  <Figure src={Output2} />
+  <Figure src={Output3} />
+</Carousel>
+
+Even when increasing input volume equally, there are moments where I think "I'm gaining a deeper understanding of this domain," and moments where I feel like I'm not growing and haven't learned anything. Whenever I reflect on those latter moments, it's when I'm not using my output as input — when I'm working mechanically.
+
+All work must be tied to my output. Automation and minimizing work are merely byproducts. The clearer the direction I give, the better the results — and that direction requires a comprehensive understanding of the product along with a clear understanding of what I'm doing. Without this alertness (as opposed to zoning out), I can't learn more and will inevitably become dumber.
+
+## Where Should I Go?
+
+While all of this is certainly helpful, I felt it wasn't addressing the question I truly needed to wrestle with. Am I really moving forward? How should I push through moments like these when everything feels overwhelming? These questions wouldn't stop nagging me. Then I suddenly remembered friend C, who had wrestled with similar concerns in the past, and I scheduled a meetup that same day.
+
+It was a short conversation of just an hour or two, but my anxiety subsided significantly and I was filled with the conviction that I need to ship fast. In the end, it's a matter of confidence, and to solve real problems, you just have to charge in headfirst — it was a moment that reminded me of this once again.
+
+On the bus ride home, the word "essence" kept swirling in my head. A belief I hold almost like a creed is: "Problems that look easy are actually very hard, and problems that look hard are actually very easy." Following that logic, since I felt that solving problems people actually use was very difficult, the probability that it's actually very easy is high. Look at the problem, go to the person, check if the problem is solved. And repeat that until it's truly solved. This must be the core of building a startup.
+
+<Figure src={WhatIsProblem} caption="The foreword of 'What's the Problem?'" />
+
+Looking back at moments when I held strong conviction about something, in nearly every case I had skin in the game. I have vivid memories of caring about the domain, listening to people's stories, experiencing problems firsthand, and striving to solve them. I finally came to deeply understand that the path I'm on is essentially a process of running around to gain conviction.
+
+## Where Am I Heading: March Goals
+
+March is always exciting. Partly because my birthday is in March, but also because it's the month where, after the trial and error of January and February's New Year's resolutions, I take my first truly meaningful steps. That is, if I lived January and February right.
+
+It's also the start of the semester, and there are various events. Looking back, I can't deny that various external events have served as significant triggers for me, so I've set a few goals:
+
+1. Ship the products I've been preparing to market (there are one or two)
+2. Shorten the idea-to-shipping cycle and document it
+3. Meet people at least once a week
+4. Maintain my diet and routines
+5. Write once a week. I'd been sitting idle under the excuse of having nothing to write, but when I actually opened my notebook, there were plenty of ideas.
+6. Read one book a week. There's more downtime than I thought while things are running.
+
+## Closing: In the Age of Cognitive Excess
+
+I spent the last day of February working alongside friends. The conversations we had in the car between venues stuck with me. The topics were diverse, but the gist was: how should we navigate in an age of cognitive excess?
+
+In what you might call the "Great Click" era, many people seem to be under pressure from the idea that more and more things can be easily automated. It's become an age where you can easily pick up anxiety by watching other people's use cases or success stories.
+
+Humanity appears to be entering an age of cognitive excess for the first time in history. Whereas technological advancement until now improved efficiency by augmenting other parts of the human body, we've now opened the door to an era where efficiency can be generated by executing human thought at tremendous speed. And at the threshold of this era, we seem to be facing unprecedented confusion.
+
+But I've become convinced that in times like these, the power of thinking for yourself becomes even more important. As you go through the process of embracing and using AI more aggressively, you begin to feel that how you think is the key to good results and performance improvement. People who use AI agents conservatively and people who push them to the extreme will eventually say the same thing: "The ability to think for yourself is the most important thing."
+
+It was a month of experiencing this perspective firsthand, and I had a pretty enjoyable time. There were moments when work felt exhausting and tedious, but once I actually sat down and got into it, I found plenty of moments where I could concentrate because I was genuinely enjoying it. I hope the next month will be the same.
