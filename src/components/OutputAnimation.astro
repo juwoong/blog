@@ -1,0 +1,342 @@
+---
+interface Props {
+  height?: string;
+  efficiency?: number;
+  volume?: number;
+}
+const { height = "300px", efficiency = 0.5, volume = 0.5 } = Astro.props;
+---
+
+<div class="output-container" style={`height: ${height}`}
+  data-efficiency={efficiency}
+  data-volume={volume}>
+  <canvas class="output-canvas"></canvas>
+</div>
+
+<style>
+  .output-container {
+    width: 100%;
+    background-color: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  @media (max-width: 480px) {
+    .output-container {
+      height: 520px !important;
+    }
+  }
+  .output-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  class OutputAnimation {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private container: HTMLElement;
+    private progress = 0;
+    private duration = 3000;
+    private pauseTime = 1500;
+    private lastTime = 0;
+    private isPaused = false;
+    private pauseStartTime = 0;
+    private E_fixed: number;
+    private V_fixed: number;
+
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d')!;
+      this.container = canvas.parentElement!;
+      this.E_fixed = parseFloat(this.container.dataset.efficiency || '0.5');
+      this.V_fixed = parseFloat(this.container.dataset.volume || '0.5');
+      this.init();
+    }
+
+    private init() {
+      this.resizeCanvas();
+      window.addEventListener('resize', () => this.resizeCanvas());
+      this.loop(0);
+    }
+
+    private resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = this.container.getBoundingClientRect();
+      this.canvas.width = rect.width * dpr;
+      this.canvas.height = rect.height * dpr;
+      this.canvas.style.width = `${rect.width}px`;
+      this.canvas.style.height = `${rect.height}px`;
+      this.ctx.scale(dpr, dpr);
+      this.draw();
+    }
+
+    private drawFormula(
+      cx: number, cy: number,
+      isEfficiencyGraph: boolean,
+      fixedVal: number
+    ) {
+      const ctx = this.ctx;
+      ctx.textBaseline = 'middle';
+
+      const subscript = fixedVal.toFixed(1);
+      const parts = isEfficiencyGraph
+        ? [
+            { text: 'O = ', active: true },
+            { text: 'E', active: true, bold: true },
+            { text: ' × ', active: true },
+            { text: `V₀`, active: false },
+            { text: `(${subscript})`, active: false, small: true },
+          ]
+        : [
+            { text: 'O = ', active: true },
+            { text: `E₀`, active: false },
+            { text: `(${subscript})`, active: false, small: true },
+            { text: ' × ', active: true },
+            { text: 'V', active: true, bold: true },
+          ];
+
+      // 너비 먼저 계산
+      let totalWidth = 0;
+      parts.forEach(p => {
+        ctx.font = p.small
+          ? '10px "Times New Roman", serif'
+          : 'italic 13px "Times New Roman", serif';
+        totalWidth += ctx.measureText(p.text).width;
+      });
+
+      let dx = cx - totalWidth / 2;
+      parts.forEach(p => {
+        ctx.font = p.small
+          ? '10px "Times New Roman", serif'
+          : 'italic 13px "Times New Roman", serif';
+        ctx.fillStyle = p.active ? '#374151' : '#d1d5db';
+        ctx.textAlign = 'left';
+        ctx.fillText(p.text, dx, cy);
+        dx += ctx.measureText(p.text).width;
+      });
+    }
+
+    private drawGraph(
+      x0: number, y0: number,
+      gw: number, gh: number,
+      xLabel: string,
+      slope: number,
+      progress: number
+    ) {
+      const ctx = this.ctx;
+
+      // X축
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x0 + gw, y0);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Y축
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x0, y0 - gh - 20);
+      ctx.strokeStyle = '#64748b';
+      ctx.stroke();
+
+      // Y축 화살표
+      ctx.beginPath();
+      ctx.moveTo(x0, y0 - gh - 20);
+      ctx.lineTo(x0 - 4, y0 - gh - 12);
+      ctx.lineTo(x0 + 4, y0 - gh - 12);
+      ctx.closePath();
+      ctx.fillStyle = '#64748b';
+      ctx.fill();
+
+      // 축 라벨
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'italic 12px "Times New Roman", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(xLabel, x0 + gw / 2, y0 + 10);
+
+      ctx.save();
+      ctx.translate(x0 - 22, y0 - gh / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('O', 0, 0);
+      ctx.restore();
+
+      // 선
+      const currentPx = x0 + progress * gw;
+      const currentPy = y0 - slope * progress * gh;
+
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(currentPx, currentPy);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 영역
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(currentPx, currentPy);
+      ctx.lineTo(currentPx, y0);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(x0, y0 - gh, x0, y0);
+      grad.addColorStop(0, 'rgba(100,116,139,0.25)');
+      grad.addColorStop(1, 'rgba(203,213,225,0.05)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 말풍선
+      const outputVal = slope * progress;
+      const text = `O = ${outputVal.toFixed(2)}`;
+      ctx.font = '13px "Times New Roman", serif';
+      const tw = ctx.measureText(text).width;
+      const bw = tw + 24, bh = 30;
+      const bx = Math.max(x0 + bw / 2 + 4, Math.min(currentPx, x0 + gw - bw / 2 - 4));
+      const by = Math.max(currentPy - 46, y0 - gh);
+
+      ctx.shadowColor = 'rgba(0,0,0,0.08)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 3;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(bx - bw / 2, by, bw, bh, 4);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(bx, by + bh);
+      ctx.lineTo(currentPx, currentPy);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([2, 2]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(currentPx, currentPy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e293b';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '13px "Times New Roman", serif';
+      ctx.fillText(text, bx, by + bh / 2 + 1);
+    }
+
+    private draw() {
+      const rect = this.container.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+      this.ctx.clearRect(0, 0, W, H);
+
+      const isMobile = W < 480;
+
+      if (isMobile) {
+        this.drawVertical(W, H);
+      } else {
+        this.drawHorizontal(W, H);
+      }
+    }
+
+    private drawHorizontal(W: number, H: number) {
+      const marginB = H * 0.2;
+      const marginT = H * 0.22;
+      const marginL = Math.min(W * 0.07, 44);
+      const gap = W * 0.06;
+
+      const gh = H - marginB - marginT;
+      const gw = (W - marginL * 3 - gap) / 2;
+
+      const x1 = marginL;
+      const x2 = marginL * 2 + gw + gap;
+      const y0 = H - marginB;
+
+      // 구분선
+      this.ctx.beginPath();
+      this.ctx.moveTo(W / 2, marginT * 0.3);
+      this.ctx.lineTo(W / 2, H - marginB * 0.3);
+      this.ctx.strokeStyle = '#e2e8f0';
+      this.ctx.lineWidth = 1;
+      this.ctx.setLineDash([4, 4]);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      this.drawFormula(x1 + gw / 2, marginT * 0.45, true, this.V_fixed);
+      this.drawFormula(x2 + gw / 2, marginT * 0.45, false, this.E_fixed);
+
+      this.drawGraph(x1, y0, gw, gh, 'E', this.V_fixed, this.progress);
+      this.drawGraph(x2, y0, gw, gh, 'V', this.E_fixed, this.progress);
+    }
+
+    private drawVertical(W: number, H: number) {
+      const marginL = Math.min(W * 0.1, 44);
+      const marginT = 24;
+      const gap = 40;
+      const halfH = (H - gap) / 2;
+      const graphMarginT = 24;
+      const graphMarginB = halfH * 0.18;
+
+      const gw = W - marginL * 2;
+      const gh = halfH - graphMarginT - graphMarginB;
+
+      // 상단 그래프
+      const y0_1 = marginT + graphMarginT + gh;
+      this.drawFormula(marginL + gw / 2, marginT + 10, true, this.V_fixed);
+      this.drawGraph(marginL, y0_1, gw, gh, 'E', this.V_fixed, this.progress);
+
+      // 구분선
+      const divY = halfH + gap / 2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(W * 0.1, divY);
+      this.ctx.lineTo(W * 0.9, divY);
+      this.ctx.strokeStyle = '#e2e8f0';
+      this.ctx.lineWidth = 1;
+      this.ctx.setLineDash([4, 4]);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      // 하단 그래프
+      const y0_2 = halfH + gap + graphMarginT + gh;
+      this.drawFormula(marginL + gw / 2, halfH + gap + 10, false, this.E_fixed);
+      this.drawGraph(marginL, y0_2, gw, gh, 'V', this.E_fixed, this.progress);
+    }
+
+    private loop = (timestamp: number) => {
+      if (!this.lastTime) this.lastTime = timestamp;
+      const dt = timestamp - this.lastTime;
+      this.lastTime = timestamp;
+
+      if (this.isPaused) {
+        if (timestamp - this.pauseStartTime > this.pauseTime) {
+          this.isPaused = false;
+          this.progress = 0;
+        }
+      } else {
+        this.progress += dt / this.duration;
+        if (this.progress >= 1) {
+          this.progress = 1;
+          this.isPaused = true;
+          this.pauseStartTime = timestamp;
+        }
+      }
+
+      this.draw();
+      requestAnimationFrame(this.loop);
+    };
+  }
+
+  document.querySelectorAll('.output-canvas').forEach((canvas) => {
+    new OutputAnimation(canvas as HTMLCanvasElement);
+  });
+</script>

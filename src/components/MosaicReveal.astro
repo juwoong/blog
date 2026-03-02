@@ -1,0 +1,110 @@
+---
+interface Props {
+  mode?: "blur" | "default";
+}
+
+const propsMode = Astro.props.mode ?? "blur";
+---
+
+<button
+  class="mosaic-text"
+  type="button"
+  data-state="hidden"
+  aria-expanded="false"
+  data-mode={propsMode}
+  aria-label="클릭하여 내용 확인"
+>
+  <span class="mosaic-text-inner"><slot /></span>
+</button>
+
+<style>
+  .mosaic-text {
+    --duration: 0.2s;
+    position: relative;
+    display: inline;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    vertical-align: baseline;
+    white-space: normal;
+    transition: text-decoration-color var(--duration) ease;
+    text-decoration: underline dotted rgba(0, 0, 0, 0.25);
+    text-underline-offset: 0.15em;
+  }
+
+  .mosaic-text:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.5);
+    outline-offset: 2px;
+  }
+
+  .mosaic-text-inner {
+    display: inline-block;
+    transition:
+      filter var(--duration) ease,
+      opacity var(--duration) ease,
+      color var(--duration) ease,
+      font-weight var(--duration) ease,
+      text-shadow var(--duration) ease;
+    opacity: 0.4;
+    filter: blur(4px);
+    color: rgb(31, 41, 55);
+    user-select: none;
+  }
+
+  .mosaic-text[data-state="visible"] .mosaic-text-inner {
+    opacity: 1;
+    filter: blur(0);
+    color: rgb(17, 24, 39);
+    user-select: text;
+  }
+
+  .mosaic-text[data-state="hidden"] .mosaic-text-inner {
+    text-shadow: 0 0 0.5px rgba(0, 0, 0, 0.08);
+  }
+</style>
+
+<script>
+  const initMosaicText = () => {
+    const buttons = document.querySelectorAll<HTMLButtonElement>(".mosaic-text");
+    if (!buttons.length) return;
+
+    const setState = (button: HTMLButtonElement, hidden: boolean) => {
+      button.setAttribute("data-state", hidden ? "hidden" : "visible");
+      button.setAttribute("aria-expanded", String(!hidden));
+      button.setAttribute(
+        "title",
+        hidden ? "클릭하여 내용 확인" : "클릭하여 내용 숨기기"
+      );
+      button.setAttribute("aria-label", hidden ? "클릭하여 내용 확인" : "클릭하여 내용 숨기기");
+    };
+
+    buttons.forEach((button) => {
+      let hidden = true;
+      setState(button, hidden);
+
+      const onToggle = () => {
+        hidden = !hidden;
+        setState(button, hidden);
+      };
+
+      button.addEventListener("click", onToggle);
+      button.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onToggle();
+        }
+      });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMosaicText);
+  } else {
+    initMosaicText();
+  }
+</script>
