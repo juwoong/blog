@@ -1,0 +1,215 @@
+---
+interface Props {
+  height?: string;
+}
+
+const { height = "180px" } = Astro.props;
+---
+
+<div class="calibration-arrow-container" style={`height: ${height}`}>
+  <canvas class="calibration-arrow-canvas"></canvas>
+</div>
+
+<style>
+  .calibration-arrow-container {
+    width: 100%;
+  }
+
+  .calibration-arrow-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  type Point = { x: number; y: number };
+
+  class CalibrationArrowAnimation {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private container: HTMLElement;
+    private progress = 0;
+    private duration = 2600;
+    private pauseTime = 1000;
+    private lastTime = 0;
+    private pauseStartTime = 0;
+    private isPaused = false;
+    private time = 0;
+
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext("2d")!;
+      this.container = canvas.parentElement!;
+      this.init();
+    }
+
+    private init() {
+      this.resizeCanvas();
+      window.addEventListener("resize", () => this.resizeCanvas());
+      this.loop(0);
+    }
+
+    private resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = this.container.getBoundingClientRect();
+
+      this.canvas.width = rect.width * dpr;
+      this.canvas.height = rect.height * dpr;
+      this.canvas.style.width = `${rect.width}px`;
+      this.canvas.style.height = `${rect.height}px`;
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.draw();
+    }
+
+    private lerp(start: number, end: number, t: number) {
+      return start + (end - start) * t;
+    }
+
+    private clamp(value: number, min: number, max: number) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    private drawPoint(point: Point, label: string, isGoal = false) {
+      this.ctx.save();
+      this.ctx.shadowColor = isGoal ? "rgba(30, 41, 59, 0.16)" : "rgba(100, 116, 139, 0.12)";
+      this.ctx.shadowBlur = isGoal ? 14 : 8;
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, isGoal ? 7 : 6, 0, Math.PI * 2);
+      this.ctx.fillStyle = isGoal ? "#1e293b" : "#475569";
+      this.ctx.fill();
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, isGoal ? 16 : 13, 0, Math.PI * 2);
+      this.ctx.strokeStyle = isGoal ? "rgba(100, 116, 139, 0.26)" : "rgba(148, 163, 184, 0.22)";
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = "#64748b";
+      this.ctx.font = 'italic 12px "Times New Roman", serif';
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "top";
+      this.ctx.fillText(label, point.x, point.y + 20);
+    }
+
+    private draw() {
+      const rect = this.container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const margin = Math.min(width * 0.12, 72);
+      const baseline = height * 0.54;
+      const start = { x: margin, y: baseline };
+      const end = { x: width - margin, y: baseline };
+      const currentX = this.lerp(start.x, end.x, this.progress);
+
+      this.ctx.clearRect(0, 0, width, height);
+
+      this.ctx.fillStyle = "rgba(148, 163, 184, 0.08)";
+      for (let i = 0; i < 6; i += 1) {
+        const y = height * 0.2 + i * ((height * 0.6) / 5);
+        this.ctx.fillRect(margin * 0.5, y, width - margin, 1);
+      }
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(start.x, baseline);
+      this.ctx.lineTo(end.x, baseline);
+      this.ctx.strokeStyle = "rgba(148, 163, 184, 0.34)";
+      this.ctx.lineWidth = 1.5;
+      this.ctx.setLineDash([8, 10]);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      const highlight = this.ctx.createLinearGradient(start.x, 0, currentX || start.x + 1, 0);
+      highlight.addColorStop(0, "rgba(226, 232, 240, 0)");
+      highlight.addColorStop(1, "rgba(71, 85, 105, 0.62)");
+      this.ctx.beginPath();
+      this.ctx.moveTo(start.x, baseline);
+      this.ctx.lineTo(currentX, baseline);
+      this.ctx.strokeStyle = highlight;
+      this.ctx.lineWidth = 4;
+      this.ctx.lineCap = "round";
+      this.ctx.stroke();
+
+      const dotCount = 16;
+      for (let i = 1; i <= dotCount; i += 1) {
+        const t = i / (dotCount + 1);
+        const x = this.lerp(start.x, end.x, t);
+        const glow = this.clamp(1 - Math.abs(t - this.progress) / 0.2, 0, 1);
+        const radius = 2.3 + glow * 2.4;
+        const alpha = 0.18 + glow * 0.62;
+
+        this.ctx.save();
+        this.ctx.shadowColor = `rgba(71, 85, 105, ${glow * 0.18})`;
+        this.ctx.shadowBlur = 10 * glow;
+        this.ctx.beginPath();
+        this.ctx.arc(x, baseline, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(71, 85, 105, ${alpha})`;
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      const pulse = 1 + 0.12 * Math.sin(this.time * 0.004);
+      this.ctx.save();
+      this.ctx.shadowColor = "rgba(71, 85, 105, 0.18)";
+      this.ctx.shadowBlur = 14;
+      this.ctx.beginPath();
+      this.ctx.arc(currentX, baseline, 7 * pulse, 0, Math.PI * 2);
+      this.ctx.fillStyle = "#f8fafc";
+      this.ctx.fill();
+      this.ctx.strokeStyle = "#475569";
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(end.x, baseline);
+      this.ctx.lineTo(end.x - 14, baseline - 8);
+      this.ctx.lineTo(end.x - 14, baseline + 8);
+      this.ctx.closePath();
+      this.ctx.fillStyle = `rgba(71, 85, 105, ${0.35 + this.progress * 0.28})`;
+      this.ctx.fill();
+
+      this.drawPoint(start, "A");
+      this.drawPoint(end, "B", true);
+    }
+
+    private loop = (timestamp: number) => {
+      this.time = timestamp;
+
+      if (!this.lastTime) {
+        this.lastTime = timestamp;
+      }
+
+      const dt = timestamp - this.lastTime;
+      this.lastTime = timestamp;
+
+      if (this.isPaused) {
+        if (timestamp - this.pauseStartTime > this.pauseTime) {
+          this.isPaused = false;
+          this.progress = 0;
+        }
+      } else {
+        this.progress += dt / this.duration;
+        if (this.progress >= 1) {
+          this.progress = 1;
+          this.isPaused = true;
+          this.pauseStartTime = timestamp;
+        }
+      }
+
+      this.draw();
+      requestAnimationFrame(this.loop);
+    };
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>(".calibration-arrow-canvas").forEach((canvas) => {
+    if (canvas.dataset.initialized === "true") {
+      return;
+    }
+
+    canvas.dataset.initialized = "true";
+    new CalibrationArrowAnimation(canvas as HTMLCanvasElement);
+  });
+</script>

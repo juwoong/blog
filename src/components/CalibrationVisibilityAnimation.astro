@@ -1,0 +1,318 @@
+---
+interface Props {
+  height?: string;
+}
+
+const { height = "220px" } = Astro.props;
+---
+
+<div class="calibration-visibility-container" style={`height: ${height}`}>
+  <canvas class="calibration-visibility-canvas"></canvas>
+</div>
+
+<style>
+  .calibration-visibility-container {
+    width: 100%;
+    background-color: #fdfbf7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .calibration-visibility-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  type Point = { x: number; y: number };
+
+  class CalibrationVisibilityAnimation {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private container: HTMLElement;
+    private lastTime = 0;
+    private time = 0;
+
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext("2d")!;
+      this.container = canvas.parentElement!;
+      this.init();
+    }
+
+    private init() {
+      this.resizeCanvas();
+      window.addEventListener("resize", () => this.resizeCanvas());
+      this.loop(0);
+    }
+
+    private resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = this.container.getBoundingClientRect();
+
+      this.canvas.width = rect.width * dpr;
+      this.canvas.height = rect.height * dpr;
+      this.canvas.style.width = `${rect.width}px`;
+      this.canvas.style.height = `${rect.height}px`;
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.draw();
+    }
+
+    private drawSpotlight(point: Point, label: string, radius: number, intensity: number) {
+      const gradient = this.ctx.createRadialGradient(
+        point.x,
+        point.y,
+        radius * 0.08,
+        point.x,
+        point.y,
+        radius
+      );
+      gradient.addColorStop(0, `rgba(248, 250, 252, ${0.28 * intensity})`);
+      gradient.addColorStop(0.38, `rgba(148, 163, 184, ${0.16 * intensity})`);
+      gradient.addColorStop(1, "rgba(15, 23, 42, 0)");
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = gradient;
+      this.ctx.fill();
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+      this.ctx.fillStyle = "#f8fafc";
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, 15, 0, Math.PI * 2);
+      this.ctx.strokeStyle = `rgba(248, 250, 252, ${0.22 * intensity})`;
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = "rgba(226, 232, 240, 0.78)";
+      this.ctx.font = '600 12px "Times New Roman", serif';
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "top";
+      this.ctx.fillText(label, point.x, point.y + 18);
+    }
+
+    private drawApproximateZone(point: Point, radius: number, intensity: number) {
+      const haze = this.ctx.createRadialGradient(
+        point.x,
+        point.y,
+        radius * 0.15,
+        point.x,
+        point.y,
+        radius
+      );
+      haze.addColorStop(0, `rgba(248, 250, 252, ${0.08 * intensity})`);
+      haze.addColorStop(0.45, `rgba(148, 163, 184, ${0.06 * intensity})`);
+      haze.addColorStop(1, "rgba(15, 23, 42, 0)");
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = haze;
+      this.ctx.fill();
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, radius * 0.72, 0, Math.PI * 2);
+      this.ctx.setLineDash([4, 6]);
+      this.ctx.strokeStyle = `rgba(248, 250, 252, ${0.26 * intensity})`;
+      this.ctx.lineWidth = 1.2;
+      this.ctx.stroke();
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.arc(point.x, point.y, 2.4, 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(248, 250, 252, ${0.22 * intensity})`;
+      this.ctx.fill();
+    }
+
+    private drawDirectionHint(origin: Point, target: Point, maxLength: number) {
+      const angle = Math.atan2(target.y - origin.y, target.x - origin.x);
+      const spread = 0.18 + 0.015 * Math.sin(this.time * 0.0028);
+      const distance = Math.min(Math.hypot(target.x - origin.x, target.y - origin.y), maxLength);
+      const tip = {
+        x: origin.x + Math.cos(angle) * distance,
+        y: origin.y + Math.sin(angle) * distance,
+      };
+      const edgeA = {
+        x: origin.x + Math.cos(angle - spread) * distance * 0.9,
+        y: origin.y + Math.sin(angle - spread) * distance * 0.9,
+      };
+      const edgeB = {
+        x: origin.x + Math.cos(angle + spread) * distance * 0.9,
+        y: origin.y + Math.sin(angle + spread) * distance * 0.9,
+      };
+
+      const cone = this.ctx.createLinearGradient(origin.x, origin.y, tip.x, tip.y);
+      cone.addColorStop(0, "rgba(148, 163, 184, 0.14)");
+      cone.addColorStop(0.5, "rgba(148, 163, 184, 0.06)");
+      cone.addColorStop(1, "rgba(148, 163, 184, 0)");
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(origin.x, origin.y);
+      this.ctx.lineTo(edgeA.x, edgeA.y);
+      this.ctx.lineTo(tip.x, tip.y);
+      this.ctx.lineTo(edgeB.x, edgeB.y);
+      this.ctx.closePath();
+      this.ctx.fillStyle = cone;
+      this.ctx.fill();
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.moveTo(origin.x, origin.y);
+      this.ctx.lineTo(tip.x, tip.y);
+      this.ctx.setLineDash([4, 6]);
+      this.ctx.strokeStyle = "rgba(248, 250, 252, 0.42)";
+      this.ctx.lineWidth = 1.2;
+      this.ctx.stroke();
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(tip.x, tip.y);
+      this.ctx.lineTo(
+        tip.x - Math.cos(angle - 0.48) * 12,
+        tip.y - Math.sin(angle - 0.48) * 12
+      );
+      this.ctx.lineTo(
+        tip.x - Math.cos(angle + 0.48) * 12,
+        tip.y - Math.sin(angle + 0.48) * 12
+      );
+      this.ctx.closePath();
+      this.ctx.fillStyle = "rgba(248, 250, 252, 0.5)";
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.arc(origin.x, origin.y, 24, angle - spread, angle + spread);
+      this.ctx.strokeStyle = "rgba(248, 250, 252, 0.22)";
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.arc(origin.x, origin.y, 18, 0, Math.PI * 2);
+      this.ctx.strokeStyle = "rgba(248, 250, 252, 0.08)";
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+    }
+
+    private draw() {
+      const rect = this.container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const framePadding = 18;
+      const panelInset = 10;
+      const frameX = framePadding;
+      const frameY = framePadding;
+      const frameWidth = width - framePadding * 2;
+      const frameHeight = height - framePadding * 2;
+      const innerX = frameX + panelInset;
+      const innerY = frameY + panelInset;
+      const innerWidth = frameWidth - panelInset * 2;
+      const innerHeight = frameHeight - panelInset * 2;
+      const leftPoint = { x: innerX + innerWidth * 0.24, y: innerY + innerHeight * 0.68 };
+      const rightPoint = { x: innerX + innerWidth * 0.76, y: innerY + innerHeight * 0.34 };
+      const roughTarget = { x: innerX + innerWidth * 0.79, y: innerY + innerHeight * 0.31 };
+      const leftRadius = Math.min(innerWidth, innerHeight) * 0.32;
+      const roughRadius = Math.min(innerWidth, innerHeight) * 0.16;
+      const leftPulse = 0.92 + 0.08 * Math.sin(this.time * 0.0034);
+      const roughPulse = 0.92 + 0.08 * Math.sin(this.time * 0.0027 + 1.2);
+
+      this.ctx.clearRect(0, 0, width, height);
+
+      this.ctx.fillStyle = "#f8f7f3";
+      this.ctx.beginPath();
+      this.ctx.roundRect(frameX, frameY, frameWidth, frameHeight, 14);
+      this.ctx.fill();
+      this.ctx.strokeStyle = "#e2e8f0";
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.roundRect(innerX, innerY, innerWidth, innerHeight, 12);
+      this.ctx.clip();
+
+      const background = this.ctx.createLinearGradient(innerX, innerY, innerX, innerY + innerHeight);
+      background.addColorStop(0, "#1f2937");
+      background.addColorStop(1, "#0f172a");
+      this.ctx.fillStyle = background;
+      this.ctx.fillRect(innerX, innerY, innerWidth, innerHeight);
+
+      this.ctx.strokeStyle = "rgba(100, 116, 139, 0.08)";
+      this.ctx.lineWidth = 1;
+      for (let i = 1; i < 7; i += 1) {
+        const y = innerY + (innerHeight / 7) * i;
+        this.ctx.beginPath();
+        this.ctx.moveTo(innerX, y);
+        this.ctx.lineTo(innerX + innerWidth, y);
+        this.ctx.stroke();
+      }
+
+      for (let i = 1; i < 8; i += 1) {
+        const x = innerX + (innerWidth / 8) * i;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, innerY);
+        this.ctx.lineTo(x, innerY + innerHeight);
+        this.ctx.stroke();
+      }
+
+      this.ctx.fillStyle = "rgba(148, 163, 184, 0.08)";
+      for (let i = 0; i < 20; i += 1) {
+        const x = innerX + innerWidth * (0.08 + (i % 10) * 0.09);
+        const y = innerY + innerHeight * (0.16 + Math.floor(i / 10) * 0.36 + ((i % 2) * 0.05));
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+
+      this.drawSpotlight(leftPoint, "A", leftRadius, leftPulse);
+      this.drawApproximateZone(roughTarget, roughRadius, roughPulse);
+      this.drawDirectionHint(leftPoint, rightPoint, innerWidth * 0.62);
+
+      const vignette = this.ctx.createRadialGradient(
+        innerX + innerWidth / 2,
+        innerY + innerHeight / 2,
+        Math.min(innerWidth, innerHeight) * 0.15,
+        innerX + innerWidth / 2,
+        innerY + innerHeight / 2,
+        Math.max(innerWidth, innerHeight) * 0.8
+      );
+      vignette.addColorStop(0, "rgba(15, 23, 42, 0)");
+      vignette.addColorStop(1, "rgba(2, 6, 23, 0.42)");
+
+      this.ctx.fillStyle = vignette;
+      this.ctx.fillRect(innerX, innerY, innerWidth, innerHeight);
+      this.ctx.restore();
+
+      this.ctx.beginPath();
+      this.ctx.roundRect(innerX, innerY, innerWidth, innerHeight, 12);
+      this.ctx.strokeStyle = "rgba(148, 163, 184, 0.16)";
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+    }
+
+    private loop = (timestamp: number) => {
+      if (!this.lastTime) {
+        this.lastTime = timestamp;
+      }
+
+      this.time += timestamp - this.lastTime;
+      this.lastTime = timestamp;
+      this.draw();
+      requestAnimationFrame(this.loop);
+    };
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>(".calibration-visibility-canvas").forEach((canvas) => {
+    if (canvas.dataset.initialized === "true") {
+      return;
+    }
+
+    canvas.dataset.initialized = "true";
+    new CalibrationVisibilityAnimation(canvas as HTMLCanvasElement);
+  });
+</script>
