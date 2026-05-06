@@ -5,34 +5,38 @@ interface Props {
   src: ImageMetadata;
   alt?: string;
   caption?: string;
+  maxWidth?: string;
   priority?: boolean;
 }
 
-const { src, alt = "", caption, priority = false } = Astro.props;
-const isLandscape = src.width > src.height;
-const optimizedWidth = isLandscape ? 720 : 480;
+const { src, alt = "", caption, maxWidth, priority = false } = Astro.props;
+const isLandscape = src.width >= src.height;
+const optimizedWidth = isLandscape ? 640 : 440;
+const figureStyle = maxWidth ? `--figure-max-width: ${maxWidth};` : undefined;
 ---
 
-<figure class:list={["figure", { landscape: isLandscape }]}>
+<figure class:list={["figure", { landscape: isLandscape }]} style={figureStyle}>
   <Image src={src} alt={alt || caption || ""} width={optimizedWidth} decoding="async" />
   {caption && <figcaption set:html={caption} />}
 </figure>
 
 <style>
   .figure {
+    --figure-portrait-max: 440px;
+    --figure-landscape-max: 620px;
     margin: 1.5em 0;
     text-align: center;
   }
 
   .figure :global(img) {
-    max-width: 480px;
+    max-width: min(100%, var(--figure-max-width, var(--figure-portrait-max)));
     width: 100%;
     height: auto;
     border-radius: 8px;
   }
 
   .figure.landscape :global(img) {
-    max-width: 100%;
+    max-width: min(100%, var(--figure-max-width, var(--figure-landscape-max)));
   }
 
   .figure figcaption {

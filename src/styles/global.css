@@ -103,6 +103,12 @@ p {
 .prose p {
   margin-bottom: 2em;
 }
+.prose p > img:only-child {
+  display: block;
+  max-width: min(100%, 620px);
+  margin-right: auto;
+  margin-left: auto;
+}
 textarea {
   width: 100%;
   font-size: 16px;
