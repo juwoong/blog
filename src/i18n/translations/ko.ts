@@ -23,6 +23,7 @@ export const ko = {
     searchPlaceholder: '검색...',
     lastUpdatedOn: '최종 수정:',
     readInLanguage: 'Read in English',
+    views: 'views',
   },
 
   // Tag description patterns

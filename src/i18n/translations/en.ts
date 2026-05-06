@@ -25,6 +25,7 @@ export const en: TranslationKeys = {
     searchPlaceholder: 'Search...',
     lastUpdatedOn: 'Last updated on',
     readInLanguage: '한국어로 읽기',
+    views: 'views',
   },
 
   // Tag description patterns

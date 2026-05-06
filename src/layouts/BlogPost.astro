@@ -4,8 +4,8 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
-import TagDescription from '../components/TagDescription.astro';
-import { getTranslations, type LanguageCode } from '../i18n';
+import ViewCounter from '../components/ViewCounter.astro';
+import { formatTagDescription, getTranslations, type LanguageCode } from '../i18n';
 
 interface Props {
 	title: string;
@@ -16,10 +16,12 @@ interface Props {
 	tags?: string[];
 	location?: string;
 	lang?: LanguageCode;
+	viewKey?: string;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, tags, location, lang = 'ko' } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, location, lang = 'ko', viewKey } = Astro.props;
 const t = getTranslations(lang);
+const tagDescription = tags && tags.length > 0 ? formatTagDescription(tags, lang) : undefined;
 ---
 
 <html lang={lang}>
@@ -66,6 +68,20 @@ const t = getTranslations(lang);
 			.last-updated-on {
 				font-style: italic;
 			}
+			.post-meta {
+				display: inline-flex;
+				flex-wrap: wrap;
+				gap: 0.45rem;
+				align-items: center;
+				justify-content: center;
+				margin-top: 0.5em;
+				color: rgb(var(--gray));
+				font-size: 1em;
+				line-height: 1.4;
+			}
+			.meta-separator {
+				color: rgb(var(--gray-date));
+			}
 			@media (max-width: 720px) {
 				.title h1 {
 					font-size: 1.8em;
@@ -91,7 +107,15 @@ const t = getTranslations(lang);
 								)
 							}
 						</div>
-						<TagDescription tags={tags} lang={lang} />
+						{
+							(tagDescription || viewKey) && (
+								<div class="post-meta">
+									{tagDescription && <span>{tagDescription}</span>}
+									{tagDescription && viewKey && <span class="meta-separator">|</span>}
+									{viewKey && <ViewCounter viewKey={viewKey} label={t.ui.views} />}
+								</div>
+							)
+						}
 					</div>
 					<slot />
 				</div>
