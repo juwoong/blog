@@ -30,7 +30,9 @@ const koreanURL = new URL(koreanPath, Astro.site);
 
 // 아티클인 경우 동적 OG 이미지 생성, 아니면 기본 이미지 사용
 let ogImage: string;
-if (pubDate) {
+if (image?.src) {
+	ogImage = new URL(image.src, Astro.site).toString();
+} else if (pubDate) {
 	const dateStr = pubDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
 	const tagsStr = tags?.map(tag => getTagLabel(tag, lang)).join(',') || '';
 	const params = new URLSearchParams({
@@ -43,9 +45,7 @@ if (pubDate) {
 	}
 	ogImage = `https://og-generator-sigma.vercel.app/api/og?${params.toString()}`;
 } else {
-	ogImage = image?.src
-		? new URL(image.src, Astro.site).toString()
-		: new URL(FallbackImage.src, Astro.site).toString();
+	ogImage = new URL(FallbackImage.src, Astro.site).toString();
 }
 
 // OG locale format (ko_KR, en_US)

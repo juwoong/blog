@@ -10,10 +10,12 @@ import { formatTagDescription, getTranslations, type LanguageCode } from '../i18
 
 interface Props {
 	title: string;
+	titleImage?: ImageMetadata;
 	description: string;
 	pubDate: Date;
 	updatedDate?: Date;
 	heroImage?: ImageMetadata;
+	ogImage?: ImageMetadata;
 	tags?: string[];
 	location?: string;
 	lang?: LanguageCode;
@@ -23,10 +25,12 @@ interface Props {
 
 const {
 	title,
+	titleImage,
 	description,
 	pubDate,
 	updatedDate,
 	heroImage,
+	ogImage,
 	tags,
 	location,
 	lang = 'ko',
@@ -41,7 +45,7 @@ const isTranslation = tags?.includes('translation') ?? false;
 
 <html lang={lang}>
 	<head>
-		<BaseHead title={title} description={description} pubDate={pubDate} tags={tags} location={location} />
+		<BaseHead title={title} description={description} image={ogImage ?? heroImage} pubDate={pubDate} tags={tags} location={location} />
 		<style>
 			main {
 				width: calc(100% - 2em);
@@ -64,6 +68,14 @@ const isTranslation = tags?.includes('translation') ?? false;
 				margin: auto;
 				color: rgb(var(--gray-dark));
 			}
+			.prose > :global(iframe) {
+				display: block;
+				width: min(100%, 560px);
+				height: auto;
+				aspect-ratio: 16 / 9;
+				margin: 2em auto;
+				border: 0;
+			}
 			.title {
 				margin-bottom: 1em;
 				padding: 1em 0;
@@ -75,6 +87,13 @@ const isTranslation = tags?.includes('translation') ?? false;
 				font-size: 2em;
 				font-weight: 600;
 				color: rgb(var(--black));
+			}
+			.title-image {
+				display: block;
+				width: min(100%, 388px);
+				height: auto;
+				margin: 0 auto;
+				border-radius: 0;
 			}
 			.date {
 				margin-bottom: 0.5em;
@@ -117,7 +136,15 @@ const isTranslation = tags?.includes('translation') ?? false;
 			<article>
 				<div class="prose">
 					<div class="title">
-						<h1>{title}</h1>
+						<h1>
+							{
+								titleImage ? (
+									<img class="title-image" src={titleImage.src} width={titleImage.width} height={titleImage.height} alt={title} />
+								) : (
+									title
+								)
+							}
+						</h1>
 						<div class="date">
 							<FormattedDate date={pubDate} lang={lang} />
 							{

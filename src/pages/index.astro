@@ -53,6 +53,14 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 				line-height: 1.4;
 				font-weight: 400;
 			}
+			.title-image {
+				display: inline-block;
+				width: auto;
+				max-width: 100%;
+				height: 1em;
+				vertical-align: -0.08em;
+				border-radius: 0;
+			}
 			ul li a:hover .title {
 				color: rgb(var(--black));
 			}
@@ -182,9 +190,17 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 				<ul>
 					{
 						posts.map((post) => (
-							<li class="post-item" data-tags={JSON.stringify(post.data.tags || [])}>
+							<li class="post-item" data-tags={JSON.stringify(post.data.tags || [])} data-title={post.data.title}>
 								<a href={`/articles/${post.id}/`}>
-									<h4 class="title">{post.data.title}</h4>
+									<h4 class="title">
+										{
+											post.data.titleImage ? (
+												<img class="title-image" src={post.data.titleImage.src} width={post.data.titleImage.width} height={post.data.titleImage.height} alt={post.data.title} />
+											) : (
+												post.data.title
+											)
+										}
+									</h4>
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} lang={lang} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => getTagLabel(tag, lang)).join(', ')}`}
 									</p>
@@ -249,7 +265,7 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 
 			function filterPosts(query: string) {
 				posts.forEach(post => {
-					const title = post.querySelector('.title')?.textContent?.toLowerCase() || '';
+					const title = post.getAttribute('data-title')?.toLowerCase() || '';
 					if (query === '' || title.includes(query)) {
 						post.classList.remove('hidden');
 					} else {

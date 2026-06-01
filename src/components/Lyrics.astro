@@ -1,0 +1,70 @@
+---
+interface Props {
+  title?: string;
+  artist?: string;
+  verses: string[][];
+}
+
+const { title, artist, verses } = Astro.props;
+const label = title ? `${title} 가사` : "가사";
+---
+
+<section class="lyrics" aria-label={label}>
+  {(title || artist) && (
+    <header class="lyrics-header">
+      {title && <h2>{title}</h2>}
+      {artist && <p>{artist}</p>}
+    </header>
+  )}
+  {verses.map((verse) => (
+    <p>
+      {verse.map((line) => (
+        <span>{line}</span>
+      ))}
+    </p>
+  ))}
+</section>
+
+<style>
+  .lyrics {
+    max-width: 560px;
+    margin: 2.5em auto 0;
+    color: rgb(var(--gray-dark));
+    font-family: "BookkMyungjo", "Pretendard", serif;
+    font-size: 0.98em;
+    line-height: 1.95;
+    text-align: center;
+  }
+
+  .lyrics-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .lyrics h2 {
+    margin-bottom: 0.25rem;
+    font-family: "Pretendard", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .lyrics-header p {
+    margin: 0;
+    color: rgb(var(--gray));
+    font-family: "Pretendard", sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .lyrics p {
+    margin: 0 0 1.6em;
+  }
+
+  .lyrics p:last-child {
+    margin-bottom: 0;
+  }
+
+  .lyrics span {
+    display: block;
+  }
+</style>

@@ -5,11 +5,13 @@ import { glob } from "astro/loaders";
 const postSchema = ({ image }: { image: () => z.ZodType<any> }) =>
   z.object({
     title: z.string(),
+    titleImage: image().optional(),
     description: z.string(),
     // Transform string to Date object
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     heroImage: image().optional(),
+    ogImage: image().optional(),
     tags: z.string().array().optional(),
     publish: z.boolean().default(true),
     location: z.string().optional(),
