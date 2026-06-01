@@ -15,6 +15,8 @@ const postSchema = ({ image }: { image: () => z.ZodType<any> }) =>
     location: z.string().optional(),
     // Optional: link to translated version by slug
     translationSlug: z.string().optional(),
+    // Optional: external source URL for translated posts
+    originalArticleUrl: z.string().url().optional(),
   });
 
 // Korean posts collection

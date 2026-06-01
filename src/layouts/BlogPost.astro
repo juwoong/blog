@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import BaseHead from '../components/BaseHead.astro';
+import Callout from '../components/Callout.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
@@ -17,11 +18,25 @@ interface Props {
 	location?: string;
 	lang?: LanguageCode;
 	viewKey?: string;
+	originalArticleUrl?: string;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, tags, location, lang = 'ko', viewKey } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags,
+	location,
+	lang = 'ko',
+	viewKey,
+	originalArticleUrl,
+} = Astro.props;
 const t = getTranslations(lang);
 const tagDescription = tags && tags.length > 0 ? formatTagDescription(tags, lang) : undefined;
+const hasPostMeta = tagDescription || viewKey || originalArticleUrl;
+const isTranslation = tags?.includes('translation') ?? false;
 ---
 
 <html lang={lang}>
@@ -82,6 +97,12 @@ const tagDescription = tags && tags.length > 0 ? formatTagDescription(tags, lang
 			.meta-separator {
 				color: rgb(var(--gray-date));
 			}
+			.original-article {
+				color: rgb(var(--gray));
+			}
+			.original-article:hover {
+				color: rgb(var(--black));
+			}
 			@media (max-width: 720px) {
 				.title h1 {
 					font-size: 1.8em;
@@ -108,15 +129,42 @@ const tagDescription = tags && tags.length > 0 ? formatTagDescription(tags, lang
 							}
 						</div>
 						{
-							(tagDescription || viewKey) && (
+							hasPostMeta && (
 								<div class="post-meta">
 									{tagDescription && <span>{tagDescription}</span>}
-									{tagDescription && viewKey && <span class="meta-separator">|</span>}
+									{tagDescription && (viewKey || originalArticleUrl) && <span class="meta-separator">|</span>}
 									{viewKey && <ViewCounter viewKey={viewKey} label={t.ui.views} />}
+									{viewKey && originalArticleUrl && <span class="meta-separator">|</span>}
+									{
+										originalArticleUrl && (
+											<a class="original-article" href={originalArticleUrl} target="_blank" rel="noopener noreferrer">
+												{t.ui.originalArticle}
+											</a>
+										)
+									}
 								</div>
 							)
 						}
 					</div>
+					{
+						isTranslation && (
+							<Callout title={t.ui.translationDisclaimerTitle}>
+								<p>
+									{t.ui.translationDisclaimer}{' '}
+									{originalArticleUrl ? (
+										<>
+											{t.ui.translationDisclaimerSource}{' '}
+											<a href={originalArticleUrl} target="_blank" rel="noopener noreferrer">
+												{t.ui.originalArticle}
+											</a>
+										</>
+									) : (
+										t.ui.translationDisclaimerSource
+									)}
+								</p>
+							</Callout>
+						)
+					}
 					<slot />
 				</div>
 			</article>
