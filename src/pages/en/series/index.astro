@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import Header from '../../../components/Header.astro';
+import SeriesList from '../../../components/SeriesList.astro';
+import { getTranslations } from '../../../i18n';
+
+const lang = 'en';
+const t = getTranslations(lang);
+const posts = (await getCollection('blog-en'))
+	.filter((post) => post.data.series && (import.meta.env.DEV || post.data.publish !== false));
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${t.ui.series} · ${t.site.title}`} description={t.ui.seriesDescription} />
+		<style>
+			main {
+				padding-top: 2rem;
+			}
+			.page-header {
+				margin-bottom: 3rem;
+			}
+			.page-header h1 {
+				margin-bottom: 0.5rem;
+			}
+			.page-header p {
+				margin: 0;
+				color: rgb(var(--gray));
+			}
+		</style>
+	</head>
+	<body>
+		<Header lang={lang} />
+		<main>
+			<div class="page-header">
+				<h1>{t.ui.series}</h1>
+				<p>{t.ui.seriesDescription}</p>
+			</div>
+			<SeriesList posts={posts} lang={lang} />
+		</main>
+		<Footer lang={lang} />
+	</body>
+</html>

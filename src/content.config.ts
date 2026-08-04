@@ -14,6 +14,12 @@ const postSchema = ({ image }: { image: () => z.ZodType<any> }) =>
     ogImage: image().optional(),
     tags: z.string().array().optional(),
     publish: z.boolean().default(true),
+    series: z.object({
+      slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+      title: z.string(),
+      order: z.number().int().positive(),
+      description: z.string().optional(),
+    }).optional(),
     location: z.string().optional(),
     // Optional: link to translated version by slug
     translationSlug: z.string().optional(),

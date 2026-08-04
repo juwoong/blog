@@ -10,7 +10,7 @@ const lang = 'ko';
 const t = getTranslations(lang);
 
 const posts = (await getCollection('blog-ko'))
-	.filter((post) => post.data.publish !== false)
+	.filter((post) => !post.data.series && (import.meta.env.DEV || post.data.publish !== false))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 // 모든 포스트에서 사용된 태그 수집
@@ -60,6 +60,14 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 				height: 1em;
 				vertical-align: -0.08em;
 				border-radius: 0;
+			}
+			.draft-label {
+				margin-left: 0.45rem;
+				color: #b33a3a;
+				font-size: 0.7rem;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				vertical-align: 0.08em;
 			}
 			ul li a:hover .title {
 				color: rgb(var(--black));
@@ -200,6 +208,7 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 												post.data.title
 											)
 										}
+										{post.data.publish === false && <span class="draft-label">DRAFT</span>}
 									</h4>
 									<p class="date">
 										<FormattedDate date={post.data.pubDate} lang={lang} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => getTagLabel(tag, lang)).join(', ')}`}

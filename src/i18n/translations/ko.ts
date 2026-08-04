@@ -31,6 +31,10 @@ export const ko = {
     translationDisclaimerSource:
       "중요한 내용은 원본 글을 함께 확인해주세요.",
     views: "views",
+    series: "시리즈",
+    seriesDescription: "주제별로 이어지는 글을 모아 읽어보세요.",
+    seriesEmpty: "아직 공개된 시리즈가 없습니다.",
+    seriesPart: "{order}편",
   },
 
   // Tag description patterns

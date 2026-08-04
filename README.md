@@ -40,6 +40,20 @@ The `src/content/` directory contains "collections" of related Markdown and MDX 
 
 Any static assets, like images, can be placed in the `public/` directory.
 
+## Series
+
+Add a `series` object to a post's frontmatter to show it on the separate `/series/` page instead of the main post list:
+
+```yaml
+series:
+  slug: "building-a-blog"
+  title: "블로그 만들기"
+  order: 1
+  description: "블로그를 직접 만들며 배운 것들"
+```
+
+Use the same `slug`, `title`, and `description` for every post in a series, and increment `order` to control the reading order. `description` is optional. English posts appear on `/en/series/`.
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:

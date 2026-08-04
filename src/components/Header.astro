@@ -9,15 +9,19 @@ const { lang: explicitLang } = Astro.props;
 const lang = explicitLang ?? getLanguageFromURL(Astro.url.pathname);
 const t = getTranslations(lang);
 const homeUrl = lang === 'en' ? '/en/' : '/';
+const seriesUrl = lang === 'en' ? '/en/series/' : '/series/';
 const alternate = getAlternateLanguagePath(Astro.url.pathname, lang);
 ---
 
 <header>
 	<nav>
 		<h2><a href={homeUrl}>{t.site.title}</a></h2>
-		<a href={alternate.path} class="lang-switch">
-			{languages[alternate.lang].shortName}
-		</a>
+		<div class="nav-links">
+			<a href={seriesUrl} class:list={{ active: Astro.url.pathname === seriesUrl }}>{t.ui.series}</a>
+			<a href={alternate.path} class="lang-switch">
+				{languages[alternate.lang].shortName}
+			</a>
+		</div>
 	</nav>
 </header>
 <style>
@@ -48,6 +52,19 @@ const alternate = getAlternateLanguagePath(Astro.url.pathname, lang);
 		padding: 1em 0;
 		color: var(--black);
 		text-decoration: none;
+	}
+	.nav-links {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+	}
+	.nav-links a {
+		font-size: 0.85em;
+		color: rgb(var(--gray));
+	}
+	.nav-links a:hover,
+	.nav-links a.active {
+		color: rgb(var(--black));
 	}
 	.lang-switch {
 		padding: 0;
