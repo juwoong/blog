@@ -1,0 +1,146 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { getTranslations, type LanguageCode } from '../i18n';
+
+type SeriesPost = CollectionEntry<'blog-ko'> | CollectionEntry<'blog-en'>;
+
+interface Props {
+	posts: SeriesPost[];
+	lang: LanguageCode;
+}
+
+const { posts, lang } = Astro.props;
+const t = getTranslations(lang);
+const articleBase = lang === 'en' ? '/en/articles' : '/articles';
+
+const groupedSeries = [...posts.reduce((groups, post) => {
+	const series = post.data.series!;
+	const group = groups.get(series.slug) ?? {
+		slug: series.slug,
+		title: series.title,
+		description: series.description,
+		posts: [] as SeriesPost[],
+	};
+	group.posts.push(post);
+	groups.set(series.slug, group);
+	return groups;
+}, new Map<string, {
+	slug: string;
+	title: string;
+	description?: string;
+	posts: SeriesPost[];
+}>()).values()]
+	.map((series) => ({
+		...series,
+		posts: series.posts.sort((a, b) => {
+			const orderDifference = a.data.series!.order - b.data.series!.order;
+			return orderDifference || a.data.pubDate.valueOf() - b.data.pubDate.valueOf();
+		}),
+	}))
+	.sort((a, b) => {
+		const latestA = Math.max(...a.posts.map((post) => post.data.pubDate.valueOf()));
+		const latestB = Math.max(...b.posts.map((post) => post.data.pubDate.valueOf()));
+		return latestB - latestA;
+	});
+---
+
+{
+	groupedSeries.length > 0 ? (
+		<div class="series-list">
+			{groupedSeries.map((series) => (
+				<section class="series" id={series.slug}>
+					<header class="series-header">
+						<h2>{series.title}</h2>
+						{series.description && <p>{series.description}</p>}
+					</header>
+					<ol class="series-posts">
+						{series.posts.map((post) => (
+							<li>
+								<a href={`${articleBase}/${post.id}/`}>
+									<span class="part">{t.ui.seriesPart.replace('{order}', String(post.data.series!.order))}</span>
+									<span class="post-title">{post.data.title}</span>
+									{post.data.publish === false && <span class="draft-label">DRAFT</span>}
+									<span class="date"><FormattedDate date={post.data.pubDate} lang={lang} /></span>
+								</a>
+							</li>
+						))}
+					</ol>
+				</section>
+			))}
+		</div>
+	) : (
+		<p class="empty-message">{t.ui.seriesEmpty}</p>
+	)
+}
+
+<style>
+	.series-list {
+		display: grid;
+		gap: 3.5rem;
+	}
+	.series {
+		scroll-margin-top: 2rem;
+	}
+	.series-header {
+		margin-bottom: 1.25rem;
+	}
+	.series-header h2 {
+		margin: 0;
+		font-size: 1.4rem;
+		font-weight: 600;
+	}
+	.series-header p {
+		margin: 0.4rem 0 0;
+		color: rgb(var(--gray));
+	}
+	.series-posts {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.series-posts li {
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+	.series-posts a {
+		display: grid;
+		grid-template-columns: 4rem minmax(0, 1fr) auto auto;
+		gap: 0.75rem;
+		align-items: center;
+		padding: 1rem 0;
+		text-decoration: none;
+		transition: transform 0.2s ease;
+	}
+	.series-posts a:hover {
+		transform: translateX(6px);
+	}
+	.part,
+	.date {
+		color: rgb(var(--gray-date));
+		font-size: 0.85rem;
+	}
+	.post-title {
+		color: rgb(var(--gray-dark));
+	}
+	.draft-label {
+		color: #b33a3a;
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+	}
+	.empty-message {
+		padding: 3rem 0;
+		color: rgb(var(--gray));
+		text-align: center;
+	}
+	@media (max-width: 560px) {
+		.series-posts a {
+			grid-template-columns: auto minmax(0, 1fr) auto;
+			gap: 0.35rem 0.6rem;
+		}
+		.date {
+			grid-column: 2 / -1;
+		}
+	}
+</style>
