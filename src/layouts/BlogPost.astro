@@ -161,26 +161,23 @@ const isTranslation = tags?.includes('translation') ?? false;
 			}
 			.post-aside {
 				margin-top: 3rem;
-				padding-top: 0.75rem;
-				border-top: 1px dashed rgb(var(--gray-light));
+				padding: 0.85rem 1rem;
+				border-radius: 0.4rem;
+				background: rgb(var(--gray-light) / 0.32);
 				color: rgb(var(--gray));
 				font-size: 0.9rem;
 				line-height: 1.7;
 			}
-			.post-aside summary {
-				width: fit-content;
-				cursor: pointer;
-				font-weight: 500;
-				user-select: none;
-			}
-			.post-aside summary:hover {
-				color: rgb(var(--gray-dark));
-			}
-			.post-aside summary::marker {
-				font-size: 0.7em;
+			.post-aside h2 {
+				margin: 0 0 0.35rem;
+				color: rgb(var(--gray-date));
+				font-size: 0.72rem;
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
 			}
 			.post-aside p {
-				margin: 0.6rem 0 0;
+				margin: 0;
 				white-space: pre-line;
 			}
 			@media (max-width: 720px) {
@@ -264,10 +261,10 @@ const isTranslation = tags?.includes('translation') ?? false;
 					<slot />
 					{
 						aside && (
-							<details class="post-aside">
-								<summary>{t.ui.aside}</summary>
+							<aside class="post-aside" role="note">
+								<h2>{t.ui.aside}</h2>
 								<p>{aside}</p>
-							</details>
+							</aside>
 						)
 					}
 				</div>
