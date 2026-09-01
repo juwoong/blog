@@ -10,7 +10,7 @@ const lang = 'en';
 const t = getTranslations(lang);
 
 const posts = (await getCollection('blog-en'))
-	.filter((post) => post.data.publish !== false)
+	.filter((post) => !post.data.series && (import.meta.env.DEV || post.data.publish !== false))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 // Collect all tags from posts
@@ -60,6 +60,14 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 				height: 1em;
 				vertical-align: -0.08em;
 				border-radius: 0;
+			}
+			.draft-label {
+				margin-left: 0.45rem;
+				color: #b33a3a;
+				font-size: 0.7rem;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				vertical-align: 0.08em;
 			}
 			ul li a:hover .title {
 				color: rgb(var(--black));
@@ -202,12 +210,13 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 											<h4 class="title">
 												{
 													post.data.titleImage ? (
-														<img class="title-image" src={post.data.titleImage.src} width={post.data.titleImage.width} height={post.data.titleImage.height} alt={post.data.title} />
-													) : (
-														post.data.title
-													)
-												}
-											</h4>
+													<img class="title-image" src={post.data.titleImage.src} width={post.data.titleImage.width} height={post.data.titleImage.height} alt={post.data.title} />
+												) : (
+													post.data.title
+												)
+											}
+											{post.data.publish === false && <span class="draft-label">DRAFT</span>}
+										</h4>
 											<p class="date">
 												<FormattedDate date={post.data.pubDate} lang={lang} />{post.data.tags && post.data.tags.length > 0 && ` | ${post.data.tags.map(tag => getTagLabel(tag, lang)).join(', ')}`}
 											</p>

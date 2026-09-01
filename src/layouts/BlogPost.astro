@@ -21,6 +21,13 @@ interface Props {
 	lang?: LanguageCode;
 	viewKey?: string;
 	originalArticleUrl?: string;
+	publish?: boolean;
+	series?: {
+		slug: string;
+		title: string;
+		order: number;
+		description?: string;
+	};
 }
 
 const {
@@ -36,6 +43,8 @@ const {
 	lang = 'ko',
 	viewKey,
 	originalArticleUrl,
+	publish = true,
+	series,
 } = Astro.props;
 const t = getTranslations(lang);
 const tagDescription = tags && tags.length > 0 ? formatTagDescription(tags, lang) : undefined;
@@ -88,6 +97,32 @@ const isTranslation = tags?.includes('translation') ?? false;
 				font-weight: 600;
 				color: rgb(var(--black));
 			}
+			.post-labels {
+				display: flex;
+				justify-content: center;
+				gap: 0.5rem;
+				margin-bottom: 0.75rem;
+			}
+			.post-label {
+				display: inline-block;
+				padding: 0.25rem 0.6rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 999px;
+				color: rgb(var(--gray));
+				font-size: 0.75rem;
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				line-height: 1.4;
+				text-decoration: none;
+			}
+			.draft-badge {
+				border-color: #b33a3a;
+				color: #b33a3a;
+			}
+			.series-badge:hover {
+				border-color: rgb(var(--gray));
+				color: rgb(var(--black));
+			}
 			.title-image {
 				display: block;
 				width: min(100%, 388px);
@@ -136,6 +171,14 @@ const isTranslation = tags?.includes('translation') ?? false;
 			<article>
 				<div class="prose">
 					<div class="title">
+						{
+							(!publish || series) && (
+								<div class="post-labels">
+									{!publish && <span class="post-label draft-badge">DRAFT</span>}
+									{series && <a class="post-label series-badge" href={`${lang === 'en' ? '/en' : ''}/series/#${series.slug}`}>{series.title} · {t.ui.seriesPart.replace('{order}', String(series.order))}</a>}
+								</div>
+							)
+						}
 						<h1>
 							{
 								titleImage ? (

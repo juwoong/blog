@@ -33,6 +33,10 @@ export const en: TranslationKeys = {
     translationDisclaimerSource:
       "Please refer to the original article for important details.",
     views: "views",
+    series: "Series",
+    seriesDescription: "Explore posts collected into ongoing series.",
+    seriesEmpty: "No published series yet.",
+    seriesPart: "Part {order}",
   },
 
   // Tag description patterns
