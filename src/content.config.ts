@@ -13,6 +13,7 @@ const postSchema = ({ image }: { image: () => z.ZodType<any> }) =>
     heroImage: image().optional(),
     ogImage: image().optional(),
     tags: z.string().array().optional(),
+    aside: z.string().trim().min(1).optional(),
     publish: z.boolean().default(true),
     series: z.object({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),

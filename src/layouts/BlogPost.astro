@@ -17,6 +17,7 @@ interface Props {
 	heroImage?: ImageMetadata;
 	ogImage?: ImageMetadata;
 	tags?: string[];
+	aside?: string;
 	location?: string;
 	lang?: LanguageCode;
 	viewKey?: string;
@@ -39,6 +40,7 @@ const {
 	heroImage,
 	ogImage,
 	tags,
+	aside,
 	location,
 	lang = 'ko',
 	viewKey,
@@ -157,6 +159,30 @@ const isTranslation = tags?.includes('translation') ?? false;
 			.original-article:hover {
 				color: rgb(var(--black));
 			}
+			.post-aside {
+				margin-top: 3rem;
+				padding-top: 0.75rem;
+				border-top: 1px dashed rgb(var(--gray-light));
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+				line-height: 1.7;
+			}
+			.post-aside summary {
+				width: fit-content;
+				cursor: pointer;
+				font-weight: 500;
+				user-select: none;
+			}
+			.post-aside summary:hover {
+				color: rgb(var(--gray-dark));
+			}
+			.post-aside summary::marker {
+				font-size: 0.7em;
+			}
+			.post-aside p {
+				margin: 0.6rem 0 0;
+				white-space: pre-line;
+			}
 			@media (max-width: 720px) {
 				.title h1 {
 					font-size: 1.8em;
@@ -236,6 +262,14 @@ const isTranslation = tags?.includes('translation') ?? false;
 						)
 					}
 					<slot />
+					{
+						aside && (
+							<details class="post-aside">
+								<summary>{t.ui.aside}</summary>
+								<p>{aside}</p>
+							</details>
+						)
+					}
 				</div>
 			</article>
 		</main>

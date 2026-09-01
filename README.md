@@ -54,6 +54,16 @@ series:
 
 Use the same `slug`, `title`, and `description` for every post in a series, and increment `order` to control the reading order. `description` is optional. English posts appear on `/en/series/`.
 
+## Aside
+
+Add an optional `aside` to a post's frontmatter to display a short postscript beneath the article. Multi-line text is supported:
+
+```yaml
+aside: |
+  본문과는 조금 다른 이야기입니다.
+  여러 줄로 작성할 수도 있습니다.
+```
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
