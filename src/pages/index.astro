@@ -61,6 +61,11 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 				vertical-align: -0.08em;
 				border-radius: 0;
 			}
+			.title-image--raster {
+				width: min(100%, 160px);
+				height: auto;
+				vertical-align: baseline;
+			}
 			.draft-label {
 				margin-left: 0.45rem;
 				color: #b33a3a;
@@ -203,7 +208,13 @@ const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 									<h4 class="title">
 										{
 											post.data.titleImage ? (
-												<img class="title-image" src={post.data.titleImage.src} width={post.data.titleImage.width} height={post.data.titleImage.height} alt={post.data.title} />
+								<img
+									class:list={['title-image', { 'title-image--raster': post.data.titleImage.format !== 'svg' }]}
+									src={post.data.titleImage.src}
+									width={post.data.titleImage.width}
+									height={post.data.titleImage.height}
+									alt={post.data.title}
+								/>
 											) : (
 												post.data.title
 											)
