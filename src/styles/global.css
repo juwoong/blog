@@ -168,6 +168,13 @@ hr {
   ul {
     padding-left: 24px;
   }
+  .prose ol {
+    padding-left: 0;
+    list-style-position: inside;
+  }
+  .prose p:has(+ ol) {
+    margin-bottom: 1em;
+  }
 }
 
 .sr-only {
